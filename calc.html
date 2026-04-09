@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Orçamento Cirúrgico · Dr. Lucas Dantas</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700&family=Montserrat:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{--navy:#2A334D;--gold:#E6C3A8;--gold2:#c89a72;--white:#fff;--off:#f8f6f2;--line:#e4dfd6;--muted:#888078;--green:#2a7a50}
+body{font-family:'Montserrat',sans-serif;background:var(--off);color:#2c2c2c;font-size:13px}
+
+/* ── TOP BAR ── */
+.topbar{background:var(--navy);padding:11px 26px;display:flex;align-items:center;gap:12px;position:sticky;top:0;z-index:100}
+.tb-icon svg{width:28px;height:28px;overflow:visible}
+.tb-nm{font-family:'Cinzel',serif;font-size:13px;letter-spacing:2px;color:#fff}.tb-nm b{color:var(--gold)}
+.tb-cr{font-size:8px;letter-spacing:3px;color:rgba(255,255,255,.35);margin-top:2px}
+.tb-sep{width:1px;height:20px;background:rgba(255,255,255,.15);margin:0 4px}
+.tb-btn{margin-left:auto;background:var(--gold);color:var(--navy);font-family:'Cinzel',serif;font-size:10px;letter-spacing:2px;font-weight:700;padding:9px 22px;border:none;border-radius:5px;cursor:pointer;display:flex;align-items:center;gap:7px}
+.tb-btn:hover{opacity:.85}.tb-btn svg{width:13px;height:13px}
+
+/* ── LAYOUT ── */
+.main{display:grid;grid-template-columns:430px 1fr;min-height:calc(100vh - 46px)}
+.form-col{background:#fff;border-right:1px solid var(--line);overflow-y:auto;padding:0 0 56px}
+.fs{padding:16px 22px 14px;border-bottom:1px solid var(--line)}
+.fs-hd{display:flex;align-items:center;gap:8px;margin-bottom:12px}
+.fs-num{width:20px;height:20px;border-radius:50%;background:var(--navy);color:#fff;font-family:'Cinzel',serif;font-size:8.5px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.fs-ttl{font-family:'Cinzel',serif;font-size:10px;letter-spacing:2.5px;color:var(--navy);text-transform:uppercase}
+
+/* ── INPUTS ── */
+label{display:block;font-size:9.5px;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);font-weight:600;margin:11px 0 4px}
+label:first-child{margin-top:0}
+input,select,textarea{width:100%;border:1.5px solid var(--line);border-radius:5px;padding:8px 10px;font-family:'Montserrat',sans-serif;font-size:12.5px;color:#2c2c2c;outline:none;transition:border .15s;background:#fff}
+input:focus,select:focus,textarea:focus{border-color:var(--navy)}
+input::placeholder{color:#ccc}
+select{cursor:pointer;-webkit-appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='7' viewBox='0 0 10 7'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%23999' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center;padding-right:28px}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.cur{position:relative}.cur-s{position:absolute;left:10px;top:50%;transform:translateY(-50%);font-size:11px;font-weight:700;color:var(--gold2);pointer-events:none}.cur input{padding-left:28px}
+
+/* ── PROC CARDS ── */
+.pg{font-size:9px;letter-spacing:2px;color:var(--muted);text-transform:uppercase;font-weight:600;margin:11px 0 6px}
+.proc-grid{display:grid;grid-template-columns:1fr 1fr;gap:5px}
+.pc{border:1.5px solid var(--line);border-radius:6px;padding:8px 10px;cursor:pointer;transition:all .15s;user-select:none;display:flex;align-items:flex-start;gap:7px}
+.pc:hover{border-color:var(--gold)}.pc.on{border-color:var(--navy);background:#f4f6fb}
+.pcd{width:13px;height:13px;border-radius:50%;border:1.5px solid #ccc;flex-shrink:0;margin-top:2px;transition:all .15s;display:flex;align-items:center;justify-content:center}
+.pc.on .pcd{background:var(--navy);border-color:var(--navy)}.pc.on .pcd::after{content:'';width:4px;height:4px;border-radius:50%;background:#fff}
+.pcn{font-size:11px;font-weight:500;color:#555;line-height:1.3}.pc.on .pcn{color:var(--navy);font-weight:600}
+.pct{font-size:9px;color:#bbb;margin-top:1px}
+.cbadge{background:#eef1fb;border:1px solid #c0caf0;border-radius:5px;padding:6px 10px;margin-top:7px;font-size:10.5px;color:#3050a0;display:none;line-height:1.5}
+.cbadge.show{display:block}
+.subtog{border:1.5px dashed #ddd8d0;border-radius:5px;padding:7px 10px;display:none;margin-top:4px;align-items:center;justify-content:space-between;cursor:pointer}
+.subtog.show{display:flex}.subtog:hover{border-color:var(--gold)}.subtog.on{border-color:var(--navy);background:#f4f6fb}
+.subtog-n{font-size:11px;color:#555}
+.tcb{width:13px;height:13px;accent-color:var(--navy);cursor:pointer}
+.benc{background:#f0faf5;border:1px solid #b8dfc6;border-radius:5px;padding:7px 10px;margin-top:5px;display:none;gap:6px;align-items:flex-start}
+.benc.show{display:flex}.benc-t{font-size:10.5px;color:#1a6040;line-height:1.45}
+.sugc{background:#fffbf0;border:1px solid #f0dfa0;border-radius:5px;padding:7px 10px;margin-top:5px;display:none;gap:6px;align-items:flex-start}
+.sugc.show{display:flex}.sugc-t{font-size:10.5px;color:#7a5a10;line-height:1.45}
+
+/* ── TOGGLES ── */
+.tog{display:flex;align-items:center;justify-content:space-between;padding:8px 10px;border:1.5px solid var(--line);border-radius:5px;cursor:pointer;margin-bottom:4px;transition:border .15s;gap:6px}
+.tog:hover{border-color:var(--gold)}.tog.on{border-color:var(--navy);background:#f4f6fb}
+.tog-l{flex:1;min-width:0}
+.tname{font-size:11.5px;font-weight:500;color:#333}.tog.on .tname{color:var(--navy)}
+.tsub{font-size:9.5px;color:var(--muted);margin-top:1px}
+.tprice{font-size:10.5px;color:var(--gold2);font-weight:600;white-space:nowrap;flex-shrink:0}
+.exbox{background:var(--off);border-radius:5px;padding:10px;margin-bottom:4px;border:1px solid var(--line);display:none}
+.exbox.show{display:block}
+
+/* ── HOSPITAL AUTO ── */
+.ibadge{display:inline-flex;align-items:center;padding:2px 8px;border-radius:20px;font-size:9px;font-weight:700;letter-spacing:.3px}
+.ibd{background:#e4eaff;color:#1a3090}.ibdc{background:#e6f5ee;color:#1a6040}
+.hauto{background:#eef1fb;border:1px solid #c0caf0;border-radius:5px;padding:8px 11px;margin-top:5px;display:none}
+.hauto.show{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.hauto-l{font-size:10.5px;color:#3050a0;line-height:1.4;flex:1}
+.hauto-v{font-size:13px;font-weight:700;color:var(--navy);white-space:nowrap;font-family:'Cinzel',serif}
+.hnote{font-size:9.5px;color:var(--muted);margin-top:3px}
+
+/* ── HONOR SUGGEST ── */
+.hsug{background:#fafaf4;border:1px solid #e0ddd4;border-radius:5px;padding:8px 11px;margin-bottom:7px;display:none}
+.hsug.show{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.hsl{flex:1}.hslb{font-size:9.5px;color:#777}.hsrl{font-size:8.5px;color:#bbb;margin-top:1px}
+.hsvl{font-family:'Cinzel',serif;font-size:14px;font-weight:700;color:var(--navy);white-space:nowrap}
+
+/* ── RADIO ── */
+.rg{display:flex;gap:7px;margin-top:4px}
+.ro{flex:1;border:1.5px solid var(--line);border-radius:5px;padding:7px 10px;cursor:pointer;display:flex;align-items:center;gap:6px;transition:border .15s}
+.ro:hover{border-color:var(--gold)}.ro.on{border-color:var(--navy);background:#f4f6fb}
+.rod{width:13px;height:13px;border-radius:50%;border:1.5px solid #bbb;flex-shrink:0;display:flex;align-items:center;justify-content:center}
+.ro.on .rod{border-color:var(--navy);background:var(--navy)}.ro.on .rod::after{content:'';width:4px;height:4px;border-radius:50%;background:#fff}
+.rol{font-size:12px;font-weight:500;color:#444}.ro.on .rol{color:var(--navy)}
+.abox{background:#fff7e4;border:1px solid #e8c840;border-radius:5px;padding:7px 10px;margin-top:6px;font-size:10.5px;color:#7a5a10;display:none}
+.abox.show{display:block}
+
+/* ── PREVIEW ── */
+.preview-col{background:#eae6df;display:flex;justify-content:center;align-items:flex-start;padding:28px 20px;overflow-y:auto}
+.pw{width:100%;max-width:660px}
+
+/* ══════════════════════════════
+   DOCUMENT STYLES
+══════════════════════════════ */
+.doc{background:#fff;border-radius:2px;box-shadow:0 2px 20px rgba(0,0,0,.1);overflow:hidden;word-break:break-word;overflow-wrap:break-word}
+.dhdr{background:var(--navy);padding:22px 38px;display:flex;align-items:center;justify-content:space-between}
+.dhdr-b{display:flex;align-items:center;gap:11px}
+.dhdr-svg{width:34px;height:34px;flex-shrink:0;overflow:visible}
+.dhdr-nm{font-family:'Cinzel',serif;font-size:16px;letter-spacing:2.5px;color:#fff}
+.dhdr-nm span{color:var(--gold)}
+.dhdr-cr{font-size:8px;letter-spacing:3px;color:rgba(255,255,255,.38);margin-top:3px}
+.dhdr-r{text-align:right}
+.dhdr-bg{font-family:'Cinzel',serif;font-size:9px;letter-spacing:2px;color:rgba(255,255,255,.45)}
+.dhdr-dt{font-size:9px;color:rgba(255,255,255,.3);margin-top:3px}
+.dttl{text-align:center;padding:24px 38px 6px}
+.dttl h1{font-family:'Cinzel',serif;font-size:16px;color:var(--navy);letter-spacing:1.5px;font-weight:500}
+.plbl{font-size:11px;color:var(--muted);margin-top:6px;font-style:italic;line-height:1.5}
+.dgl{width:36px;height:2px;background:var(--gold);margin:10px auto 0;border-radius:1px}
+.dbody{padding:20px 38px 30px;overflow-wrap:break-word;word-break:break-word}
+.pbox{border-left:3px solid var(--gold);padding:12px 16px;margin-bottom:20px;background:#faf8f5;border-radius:0 6px 6px 0}
+.pr{display:grid;grid-template-columns:80px 1fr;gap:4px;padding:2.5px 0;font-size:12px}
+.pk{color:var(--muted);font-weight:500}.pv{color:var(--navy);font-weight:700}
+.sec{margin-bottom:22px;padding-bottom:20px;border-bottom:1px solid var(--line)}
+.sec:last-of-type{border-bottom:none;margin-bottom:0}
+.sttl{font-family:'Cinzel',serif;font-size:11px;letter-spacing:2.5px;color:var(--navy);font-weight:700;padding-bottom:11px;margin-bottom:13px;display:flex;align-items:center;gap:10px}
+.sttl::before{content:'';display:block;width:5px;height:5px;border-radius:50%;background:var(--gold);flex-shrink:0}
+.sttl::after{content:'';flex:1;height:1.5px;background:var(--line)}
+.fmn{display:flex;justify-content:space-between;align-items:baseline;background:#f4f6fb;border-radius:5px;padding:11px 14px;margin-bottom:8px;border-left:3px solid #3050a0}
+.flb{font-weight:600;color:var(--navy);font-size:13px}
+.fvl{font-family:'Cinzel',serif;font-size:16px;color:var(--navy);font-weight:700}
+.pgmt{display:flex;gap:6px;flex-wrap:wrap;margin-top:4px}
+.pgmt-pill{display:inline-flex;align-items:center;gap:4px;padding:4px 12px;border-radius:20px;font-size:11px;font-weight:600;letter-spacing:.2px;white-space:nowrap;border:1.5px solid}
+.pgmt-pill.parc{background:#eef1fb;border-color:#99aae0;color:#1a3090}
+.pgmt-pill.bol{background:#faf6ee;border-color:#d8b870;color:#7a5010}
+.pgmt-pill.hosp{background:#eef8f3;border-color:#90ccaa;color:#1a5030}
+.ir{display:flex;justify-content:space-between;align-items:baseline;padding:7px 0;border-bottom:1px dashed #ede9e2}
+.ir:last-child{border:none}
+.il{color:#444;font-size:12px;font-weight:500}.iv{font-weight:700;color:var(--navy);font-size:12px}
+.int{font-size:10.5px;color:#666;font-style:italic;padding:4px 0 2px;line-height:1.55}
+.ckl{list-style:none;margin-top:2px}
+.ckl li{display:flex;gap:8px;padding:4px 0;font-size:11.5px;color:#555;align-items:flex-start;line-height:1.6}
+.ckl li::before{content:'';width:6px;height:6px;border-radius:50%;background:var(--gold);flex-shrink:0;margin-top:5px}
+.stbl{width:100%;border-collapse:collapse;table-layout:fixed;margin-top:4px}
+.stbl tr{border-bottom:1px solid #ede9e2}.stbl tr:last-child{border-bottom:2px solid var(--navy)}
+.stbl td{padding:6px 0;font-size:12px;overflow-wrap:break-word;word-break:break-word}
+.sk{color:#888;font-weight:400}.sv{text-align:right;font-weight:700;color:#2c2c2c;font-size:12px;white-space:nowrap;width:110px}
+.totln{display:flex;justify-content:space-between;align-items:baseline;margin-top:14px;padding-top:12px;border-top:1px solid var(--line)}
+.totln .tl{font-family:'Cinzel',serif;font-size:9px;letter-spacing:3px;color:var(--muted);text-transform:uppercase}
+.totln .tv{font-family:'Cinzel',serif;font-size:16px;color:var(--navy);letter-spacing:.5px;font-weight:600}
+.totvl{font-size:9px;color:#ccc;text-align:right;margin-top:3px}
+.dnotes{font-size:10px;color:#c0bbb6;line-height:2;margin-top:14px;list-style:none;border-top:1px solid var(--line);padding-top:11px}
+.dnotes li::before{content:'· '}
+.ptbl{width:100%;border-collapse:collapse;margin-top:10px;border-radius:5px;overflow:hidden}
+.ptbl thead tr{background:var(--navy)}
+.ptbl thead td{color:rgba(255,255,255,.65);font-size:9.5px;letter-spacing:1px;padding:7px 12px;font-weight:600;text-transform:uppercase}
+.ptbl tbody tr{border-bottom:1px solid #f0ece6}
+.ptbl tbody td{padding:7px 12px;font-size:11.5px;color:#444}
+.ptbl tbody td:last-child{text-align:right;font-weight:700;color:var(--navy);font-family:'Cinzel',serif;font-size:12px}
+.ptbl-av{background:#f0faf5}
+.ptbl-av td:last-child{color:var(--green)!important}
+.sal{background:#fffbf0;border-left:3px solid var(--gold2);padding:8px 12px;margin:10px 0;font-size:11px;color:#6a4c10;line-height:1.5;border-radius:0 5px 5px 0}
+.dftr{background:var(--off);border-top:2px solid var(--gold);padding:13px 38px;display:flex;justify-content:space-between;align-items:center}
+.dftr-b{display:flex;align-items:center;gap:8px}
+.dftr-svg{width:20px;height:20px;opacity:.6;overflow:visible}
+.dftr-nm{font-family:'Cinzel',serif;font-size:10px;letter-spacing:1.5px;color:var(--navy)}
+.dftr-nm span{color:var(--gold2)}
+.dftr-info{font-size:9.5px;color:var(--muted);line-height:1.75;margin-top:3px}
+.dfr{text-align:right;font-size:9.5px;color:var(--muted);line-height:1.8}
+.dfr strong{font-family:'Cinzel',serif;font-size:11px;color:var(--navy);display:block;margin-bottom:1px}
+.empty{text-align:center;padding:56px 20px;color:#ccc}
+.empty svg{width:38px;height:38px;margin:0 auto 14px;display:block;opacity:.2}
+.empty p{font-size:12px}
+
+@media print{
+  *{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}
+  .topbar,.form-col{display:none!important}
+  .main{display:block}
+  body,.preview-col{background:#fff}
+  .preview-col{padding:0}.pw{max-width:100%;margin:0}
+  .doc{box-shadow:none}
+  .doc-pt{width:100%;border-collapse:collapse}
+  .doc-pt thead{display:table-header-group}
+  .doc-pt tfoot{display:none}
+  .doc-pt tbody{display:table-row-group}
+  .doc-pt td{padding:0}
+  .dftr{position:fixed;bottom:0;left:0;right:0}
+  .dbody{padding-bottom:80px}
+  .sec{page-break-inside:avoid}
+  .pbox{page-break-inside:avoid}
+  .dttl h1{font-size:14pt}.plbl{font-size:9.5pt}
+  .pk,.pv{font-size:10pt}.flb{font-size:11pt}.fvl{font-size:13pt}
+  .pgmt-pill{font-size:9.5pt}.il,.iv{font-size:10.5pt}
+  .stbl td{font-size:10.5pt}.sk{font-size:10pt}
+  .totln .tl{font-size:7.5pt}.totln .tv{font-size:13pt}
+  .ckl li{font-size:10pt}.dnotes li{font-size:8.5pt}
+  .int{font-size:9pt;color:#555;font-style:italic}
+  .dftr-info{font-size:8.5pt}.dfr{font-size:8.5pt}
+  .sttl{font-size:9pt;font-weight:700;letter-spacing:2px}
+  .ptbl td{font-size:9pt}
+  @page{size:A4;margin:8mm 12mm}
+}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div style="display:flex;align-items:center;gap:9px">
+    <svg viewBox="0 0 60 62" fill="none" style="width:28px;height:28px;overflow:visible">
+      <path d="M 30,9 A 22,22 0 0,0 30,53" stroke="#E6C3A8" stroke-width="3" stroke-linecap="round"/>
+      <path d="M 30,9 A 22,22 0 0,1 46,47" stroke="#E6C3A8" stroke-width="3" stroke-linecap="round"/>
+      <path d="M 41,51 A 22,22 0 0,1 36,53" stroke="#E6C3A8" stroke-width="3" stroke-linecap="round"/>
+      <line x1="30" y1="9" x2="30" y2="53" stroke="#E6C3A8" stroke-width="3" stroke-linecap="round"/>
+    </svg>
+    <div><div class="tb-nm"><b>LUCAS</b>DANTAS</div><div class="tb-cr">CIRURGIA PLÁSTICA</div></div>
+  </div>
+  <div class="tb-sep"></div>
+  <div style="font-size:9px;letter-spacing:2px;color:rgba(255,255,255,.35)">ORÇAMENTOS</div>
+  <button class="tb-btn" onclick="printDoc()">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+    Gerar PDF / Imprimir
+  </button>
+</div>
+
+<div class="main">
+<div class="form-col">
+
+<!-- § 1 PACIENTE -->
+<div class="fs">
+  <div class="fs-hd"><div class="fs-num">1</div><div class="fs-ttl">Paciente</div></div>
+  <label>Nome completo</label>
+  <input id="f-nome" type="text" placeholder="Nome da paciente" oninput="up()">
+  <div class="row2">
+    <div><label>Idade</label><input id="f-idade" type="number" min="1" max="99" placeholder="—" oninput="up()"></div>
+    <div><label>Data</label><input id="f-data" type="date" oninput="up()"></div>
+  </div>
+</div>
+
+<!-- § 2 PROCEDIMENTOS -->
+<div class="fs">
+  <div class="fs-hd"><div class="fs-num">2</div><div class="fs-ttl">Procedimentos</div></div>
+
+  <div class="pg">MAMA</div>
+  <div class="proc-grid">
+    <div class="pc" id="pc-mama_redutora" onclick="togP('mama_redutora')"><div class="pcd"></div><div><div class="pcn">Mama Redutora</div><div class="pct">Com fisio · Internação</div></div></div>
+    <div class="pc" id="pc-mastopexia" onclick="togP('mastopexia')"><div class="pcd"></div><div><div class="pcn">Mastopexia</div><div class="pct">Com fisio · Internação</div></div></div>
+    <div class="pc" id="pc-protese" onclick="togP('protese')"><div class="pcd"></div><div><div class="pcn">Inclusão de Prótese</div><div class="pct">Sem fisio · Internação</div></div></div>
+  </div>
+  <div class="subtog" id="sub-masto" onclick="togSub('masto')"><div class="subtog-n">↳ Mastopexia <b>com prótese</b>?</div><input type="checkbox" class="tcb" id="cb-masto" onclick="event.stopPropagation();togSub('masto')"></div>
+  <div class="subtog" id="sub-redu" onclick="togSub('redu')"><div class="subtog-n">↳ Mama Redutora <b>com prótese</b>?</div><input type="checkbox" class="tcb" id="cb-redu" onclick="event.stopPropagation();togSub('redu')"></div>
+
+  <div class="pg" style="margin-top:11px">LIPO / ABDOME</div>
+  <div class="proc-grid">
+    <div class="pc" id="pc-lipo_abdome" onclick="togP('lipo_abdome')"><div class="pcd"></div><div><div class="pcn">Lipo Abdome</div><div class="pct">1 decúbito · Day Clinic</div></div></div>
+    <div class="pc" id="pc-lipo_360" onclick="togP('lipo_360')"><div class="pcd"></div><div><div class="pcn">Lipo 360°</div><div class="pct">2 decúbitos · Internação</div></div></div>
+    <div class="pc" id="pc-abdo" onclick="togP('abdo')"><div class="pcd"></div><div><div class="pcn">Abdominoplastia</div><div class="pct">Com fisio · Internação</div></div></div>
+  </div>
+  <div class="benc" id="ben-glut"><div style="font-size:14px;flex-shrink:0">🎁</div><div class="benc-t"><strong>Avalie incluir Enxertia Glútea</strong> — sem custo para a paciente. Ativar nos extras.</div></div>
+
+  <div class="pg" style="margin-top:11px">FACE</div>
+  <div class="proc-grid">
+    <div class="pc" id="pc-bleparo_sup" onclick="togP('bleparo_sup')"><div class="pcd"></div><div><div class="pcn">Blefaroplastia<br>Superior</div><div class="pct">Sem fisio · Day Clinic</div></div></div>
+    <div class="pc" id="pc-bleparo_inf" onclick="togP('bleparo_inf')"><div class="pcd"></div><div><div class="pcn">Blefaroplastia<br>Inferior</div><div class="pct">Sem fisio · Day Clinic</div></div></div>
+    <div class="pc" id="pc-lifting" onclick="togP('lifting')"><div class="pcd"></div><div><div class="pcn">Lifting Facial</div><div class="pct">Sem fisio · Internação</div></div></div>
+    <div class="pc" id="pc-rinoplastia" onclick="togP('rinoplastia')"><div class="pcd"></div><div><div class="pcn">Rinoplastia</div><div class="pct">Sem fisio · Internação</div></div></div>
+  </div>
+
+  <div class="pg" style="margin-top:11px">OUTROS</div>
+  <div class="proc-grid">
+    <div class="pc" id="pc-ginecomastia" onclick="togP('ginecomastia')"><div class="pcd"></div><div><div class="pcn">Ginecomastia</div><div class="pct">Sem fisio · Day Clinic</div></div></div>
+    <div class="pc" id="pc-braquioplastia" onclick="togP('braquioplastia')"><div class="pcd"></div><div><div class="pcn">Braquioplastia</div><div class="pct">Sem fisio · Day Clinic</div></div></div>
+  </div>
+
+  <div class="cbadge" id="cbadge"></div>
+  <div class="sugc" id="lasersug"><div style="font-size:13px;flex-shrink:0;margin-top:1px">💡</div><div class="sugc-t"><strong>Laser de Argônio recomendado</strong> para lipo e abdominoplastia. Ativar nos extras abaixo.</div></div>
+</div>
+
+<!-- § 3 HOSPITAL -->
+<div class="fs">
+  <div class="fs-hd"><div class="fs-num">3</div><div class="fs-ttl">Hospital</div></div>
+  <label>Selecionar hospital</label>
+  <select id="f-hosp" onchange="onH()">
+    <option value="">— selecione —</option>
+    <option value="pan">Hospital Panamericano – Tijuca</option>
+    <option value="pasteur">Hospital Pasteur</option>
+  </select>
+  <div class="hauto" id="hauto">
+    <div><div class="hauto-l" id="hauto-l">—</div><div id="hauto-type" style="margin-top:3px"></div></div>
+    <div class="hauto-v" id="hauto-v">—</div>
+  </div>
+  <div class="hnote" id="hnote"></div>
+  <label style="margin-top:9px">Valor da internação <span style="color:#ccc;font-weight:400;letter-spacing:0;text-transform:none;font-size:9px">(confirme ou ajuste)</span></label>
+  <div class="cur"><span class="cur-s">R$</span><input id="f-hval" type="text" placeholder="0,00" oninput="up()"></div>
+  <label style="margin-top:9px">Tipo de internação</label>
+  <select id="f-inter" onchange="up()">
+    <option value="">Automático (pelo procedimento)</option>
+    <option value="Day Clinic">Day Clinic (vai embora no mesmo dia)</option>
+    <option value="Internação 1 Diária">Internação 1 Diária</option>
+    <option value="Internação 2 Diárias">Internação 2 Diárias</option>
+    <option value="A definir">A definir com equipe</option>
+  </select>
+</div>
+
+<!-- § 4 HONORÁRIOS -->
+<div class="fs">
+  <div class="fs-hd"><div class="fs-num">4</div><div class="fs-ttl">Honorários Médicos</div></div>
+  <div class="hsug" id="hsug">
+    <div class="hsl"><div class="hslb">Sugestão calculada para esta combinação</div><div class="hsrl" id="hsrl">—</div></div>
+    <div class="hsvl" id="hsvl">—</div>
+  </div>
+  <label>Valor dos honorários</label>
+  <div class="cur"><span class="cur-s">R$</span><input id="f-hon" type="text" placeholder="0,00" oninput="up()"></div>
+  <div class="row2">
+    <div><label>Parcelamento s/ juros</label>
+      <select id="f-parc" onchange="up()">
+        <option value="6x sem juros">6x sem juros</option>
+        <option value="10x sem juros" selected>10x sem juros</option>
+        <option value="12x sem juros">12x sem juros</option>
+      </select>
+    </div>
+    <div><label>Boleto</label>
+      <select id="f-boleto" onchange="up()">
+        <option value="">Não</option>
+        <option value="12x boleto" selected>12x — opera após quitar</option>
+        <option value="18x boleto">18x — opera após quitar</option>
+      </select>
+    </div>
+  </div>
+</div>
+
+<!-- § 5 EXTRAS -->
+<div class="fs">
+  <div class="fs-hd"><div class="fs-num">5</div><div class="fs-ttl">Extras Opcionais</div></div>
+
+  <div class="tog" id="tog-prot" onclick="togX('prot')" style="display:none">
+    <div class="tog-l"><div class="tname">Prótese Mamária</div><div class="tsub">Pago diretamente ao fornecedor</div></div>
+    <input type="checkbox" class="tcb" id="cb-prot" onclick="event.stopPropagation();togX('prot')">
+  </div>
+  <div class="exbox" id="ex-prot">
+    <div class="row2">
+      <div><label>Empresa</label><select id="f-emp" onchange="up()"><option>Polytech</option><option>Silimed</option><option>Mentor</option><option>Outra</option></select></div>
+      <div><label>Valor à vista / PIX</label><div class="cur"><span class="cur-s">R$</span><input id="f-prot-av" type="text" placeholder="0,00" oninput="up()"></div></div>
+    </div>
+    <p style="font-size:10px;color:var(--muted);margin-top:6px;line-height:1.5">As demais opções de parcelamento (1x, 3x, 6x, 10x) serão calculadas automaticamente no orçamento.</p>
+  </div>
+
+  <div class="tog" id="tog-laser" onclick="togX('laser')">
+    <div class="tog-l"><div class="tname">Laser de Argônio — ARGON 4</div><div class="tsub">Retração de pele · lipo e abdominoplastia</div></div>
+    <span class="tprice">R$ 5.000</span>
+    <input type="checkbox" class="tcb" id="cb-laser" onclick="event.stopPropagation();togX('laser')">
+  </div>
+  <div class="exbox" id="ex-laser">
+    <label>Valor</label><div class="cur"><span class="cur-s">R$</span><input id="f-laser" type="text" value="5.000,00" oninput="up()"></div>
+  </div>
+
+  <div class="tog" id="tog-bota" onclick="togX('bota')">
+    <div class="tog-l"><div class="tname">Bota Pneumática</div><div class="tsub">Verificar se já inclusa no pacote do hospital</div></div>
+    <input type="checkbox" class="tcb" id="cb-bota" onclick="event.stopPropagation();togX('bota')">
+  </div>
+  <div class="exbox" id="ex-bota">
+    <label>Valor</label><div class="cur"><span class="cur-s">R$</span><input id="f-bota" type="text" value="730,00" oninput="up()"></div>
+  </div>
+
+  <div class="tog" id="tog-gluteo" onclick="togX('gluteo')" style="display:none">
+    <div class="tog-l">
+      <div class="tname" style="color:var(--green)">Enxertia Glútea &nbsp;<span style="background:#e6f5ee;color:var(--green);font-size:9px;border-radius:20px;padding:1px 8px;font-weight:400">INCLUSA</span></div>
+      <div class="tsub">Ref.: R$ 8.000 — sem custo para a paciente</div>
+    </div>
+    <input type="checkbox" class="tcb" id="cb-gluteo" onclick="event.stopPropagation();togX('gluteo')">
+  </div>
+</div>
+
+<!-- § 6 CONVÊNIO -->
+<div class="fs">
+  <div class="fs-hd"><div class="fs-num">6</div><div class="fs-ttl">Convênio / Seguro</div></div>
+  <div style="font-size:11.5px;color:var(--muted);margin-bottom:7px">Paciente possui convênio médico ativo?</div>
+  <div class="rg">
+    <div class="ro on" id="ro-s" onclick="setSeg(true)"><div class="rod"></div><div class="rol">Sim</div></div>
+    <div class="ro" id="ro-n" onclick="setSeg(false)"><div class="rod"></div><div class="rol">Não</div></div>
+  </div>
+  <div class="abox" id="segalert">Sem convênio ativo — incluir custo do <strong>Seguro Cirúrgico</strong> (valor a consultar).</div>
+</div>
+
+<!-- § 7 OBSERVAÇÕES -->
+<div class="fs">
+  <div class="fs-hd"><div class="fs-num">7</div><div class="fs-ttl">Observações</div></div>
+  <textarea id="f-obs" rows="3" style="resize:vertical" placeholder="Notas adicionais..." oninput="up()"></textarea>
+  <button onclick="clearAll()" style="width:100%;background:none;border:1.5px solid var(--line);border-radius:5px;padding:8px;font-family:'Cinzel',serif;font-size:9px;letter-spacing:2px;color:var(--muted);cursor:pointer;margin-top:9px" onmouseover="this.style.borderColor='#999'" onmouseout="this.style.borderColor='var(--line)'">Limpar Formulário</button>
+</div>
+</div>
+
+<div class="preview-col"><div class="pw"><div id="doc-out"></div></div></div>
+</div>
+
+<script>
+const PC={
+  mama_redutora:{l:'Mama Redutora',fisio:1,hon:20000,sutia:1,cinta:0,laser:0,d:'diaria'},
+  mastopexia:{l:'Mastopexia',fisio:1,hon:20000,sutia:1,cinta:0,laser:0,d:'diaria'},
+  protese:{l:'Prótese',fisio:0,hon:12000,sutia:1,cinta:0,laser:0,d:'diaria'},
+  lipo_abdome:{l:'Lipo Abdome',fisio:1,hon:15000,sutia:0,cinta:1,laser:1,d:'dayclinic'},
+  lipo_360:{l:'Lipo 360°',fisio:1,hon:20000,sutia:0,cinta:1,laser:1,d:'diaria'},
+  abdo:{l:'Abdominoplastia',fisio:1,hon:20000,sutia:0,cinta:1,laser:1,d:'diaria'},
+  bleparo_sup:{l:'Blefaroplastia Superior',fisio:0,hon:7000,sutia:0,cinta:0,laser:0,d:'dayclinic'},
+  bleparo_inf:{l:'Blefaroplastia Inferior',fisio:0,hon:7000,sutia:0,cinta:0,laser:0,d:'dayclinic'},
+  lifting:{l:'Lifting Facial',fisio:0,hon:24000,sutia:0,cinta:0,laser:0,d:'diaria'},
+  rinoplastia:{l:'Rinoplastia',fisio:0,hon:15000,sutia:0,cinta:0,laser:0,d:'diaria'},
+  ginecomastia:{l:'Ginecomastia',fisio:0,hon:15000,sutia:0,cinta:0,laser:0,d:'dayclinic'},
+  braquioplastia:{l:'Braquioplastia',fisio:0,hon:12000,sutia:0,cinta:0,laser:0,d:'dayclinic'},
+};
+const H={
+  pan:{n:'Hospital Panamericano – Tijuca',
+    diaria:{mama:4200,protese:3700,lipo:4200,abdo:4200,lipo_abdo:4900,mama_abdo:5900,mama_lipo:5400,protese_abdo:5850,protese_lipo:5150,lifting:4200,rino:4150,gine:null},
+    dayclinic:{mama:3800,protese:3300,lipo:3300,bleparo_sup:2430,bleparo_inf:2430,gine:null,braqui:3300},bI:[]},
+  pasteur:{n:'Hospital Pasteur',
+    diaria:{mama:4200,protese:3700,lipo:4200,abdo:4420,lipo_abdo:4900,mama_abdo:7120,mama_lipo:5400,protese_abdo:5850,protese_lipo:5150,lifting:5200,rino:4150,gine:3700},
+    dayclinic:{mama:3990,protese:3300,lipo:3300,bleparo_sup:2430,bleparo_inf:2430,gine:3490,braqui:3300},bI:['mama_abdo']},
+};
+let S=new Set(),mP=0,rP=0,seg=1,EX={prot:0,laser:0,bota:0,gluteo:0},hM=0;
+const isMama=()=>S.has('mama_redutora')||S.has('mastopexia');
+const isLipo=()=>S.has('lipo_abdome')||S.has('lipo_360');
+const hasDiaria=()=>['mama_redutora','mastopexia','protese','lipo_360','abdo','lifting','rinoplastia'].some(p=>S.has(p));
+
+function lkH(hid){const h=H[hid];if(!h)return null;const hM2=isMama(),hP=S.has('protese'),hL=isLipo(),hL3=S.has('lipo_360'),hA=S.has('abdo'),isLA=(hL||hL3)&&hA;const type=hasDiaria()?'diaria':'dayclinic';let k=null,lb='',bi=0;if(type==='diaria'){if(hM2&&(isLA||hA)){k='mama_abdo';bi=h.bI.includes('mama_abdo')?1:0;lb=hid==='pasteur'?'Abdominoplastia + Mamoplastia (bota incl.)':'Mamoplastia + Abdominoplastia';}else if(hM2&&hL){k='mama_lipo';lb='Lipoaspiração + Mamoplastia';}else if(hP&&(isLA||hA)){k='protese_abdo';lb='Prótese + Abdominoplastia';}else if(hP&&hL){k='protese_lipo';lb='Lipoaspiração + Prótese';}else if(isLA){k='lipo_abdo';lb='Abdominoplastia + Lipo';}else if(hA){k='abdo';lb='Abdominoplastia';}else if(hL3){k='lipo';lb='Lipoaspiração 360°';}else if(hM2){k='mama';lb='Mamoplastia / Mastopexia';}else if(hP){k='protese';lb='Prótese de Mama';}else if(S.has('lifting')){k='lifting';lb='Face Completa / Lifting';}else if(S.has('rinoplastia')){k='rino';lb='Rinoplastia';}else if(S.has('ginecomastia')){k='gine';lb='Ginecomastia';}}else{if(hM2){k='mama';lb='Mamoplastia (Day Clinic)';}else if(hP){k='protese';lb='Prótese (Day Clinic)';}else if(S.has('bleparo_sup')){k='bleparo_sup';lb='Blefaroplastia Superior';}else if(S.has('bleparo_inf')){k='bleparo_inf';lb='Blefaroplastia Inferior';}else if(S.has('ginecomastia')){k='gine';lb='Ginecomastia';}else if(S.has('braquioplastia')){k='braqui';lb='Braquioplastia';}else if(S.has('lipo_abdome')){k='lipo';lb='Lipo Abdome';}}const price=k?(h[type][k]??null):null;return{price,lb:lb||'Consultar',type,bi};}
+function cHon(){if(!S.size)return{v:0,r:''};const hM2=isMama(),hL3=S.has('lipo_360'),hA=S.has('abdo');const hm={mama_redutora:20000,mastopexia:20000,protese:12000,lipo_abdome:15000,lipo_360:20000,abdo:20000,bleparo_sup:7000,bleparo_inf:7000,lifting:24000,rinoplastia:15000,ginecomastia:15000,braquioplastia:12000};if(hM2&&hL3&&hA)return{v:32000,r:'Mastopexia + LipoAbdominoplastia 360°'};if(hM2&&hA&&!hL3)return{v:26000,r:'Mastopexia + Abdominoplastia'};if(hL3&&hA&&!hM2)return{v:24000,r:'LipoAbdominoplastia 360°'};const ids=[...S];if(ids.length===1){const v=hm[ids[0]]||0;return{v,r:ids[0]==='ginecomastia'?'Ref. R$12k–R$18k':''};}let eff=[];ids.forEach(id=>{if(id==='lipo_360'&&hA){eff.push(24000);return;}if(id==='abdo'&&hL3)return;eff.push(hm[id]||0);});eff=eff.filter(h=>h>0);if(!eff.length)return{v:0,r:''};if(eff.length===1)return{v:eff[0],r:''};return{v:Math.max(...eff)+8000,r:'Procedimento principal + R$ 8.000'};}
+function getParts(){const p=[];if(S.has('mama_redutora'))p.push(rP?'Mama Redutora c/ Prótese':'Mama Redutora');if(S.has('mastopexia'))p.push(mP?'Mastopexia c/ Prótese':'Mastopexia');if(S.has('protese')&&!S.has('mastopexia')&&!S.has('mama_redutora'))p.push('Inclusão de Prótese');const la=(S.has('lipo_abdome')||S.has('lipo_360'))&&S.has('abdo');if(la)p.push(S.has('lipo_360')?'LipoAbdominoplastia 360°':'LipoAbdominoplastia');else{if(S.has('lipo_abdome'))p.push('Lipo Abdome');if(S.has('lipo_360'))p.push('Lipo 360°');if(S.has('abdo'))p.push('Abdominoplastia');}if(S.has('bleparo_sup'))p.push('Blefaroplastia Superior');if(S.has('bleparo_inf'))p.push('Blefaroplastia Inferior');if(S.has('lifting'))p.push('Lifting Facial');if(S.has('rinoplastia'))p.push('Rinoplastia');if(S.has('ginecomastia'))p.push('Ginecomastia');if(S.has('braquioplastia'))p.push('Braquioplastia');return p;}
+function togP(id){S.has(id)?S.delete(id):S.add(id);document.getElementById('pc-'+id)?.classList.toggle('on',S.has(id));document.getElementById('sub-masto').classList.toggle('show',S.has('mastopexia'));if(!S.has('mastopexia')){mP=0;document.getElementById('cb-masto').checked=false;document.getElementById('sub-masto').classList.remove('on');}document.getElementById('sub-redu').classList.toggle('show',S.has('mama_redutora'));if(!S.has('mama_redutora')){rP=0;document.getElementById('cb-redu').checked=false;document.getElementById('sub-redu').classList.remove('on');}const np=S.has('protese')||mP||rP;document.getElementById('tog-prot').style.display=np?'flex':'none';document.getElementById('tog-gluteo').style.display=isLipo()?'flex':'none';document.getElementById('ben-glut').classList.toggle('show',isLipo());document.getElementById('lasersug').classList.toggle('show',[...S].some(p=>PC[p]?.laser)&&!EX.laser);updH();onH();up();}
+function togSub(t){const cb=document.getElementById('cb-'+t);if(t==='masto')mP=cb.checked?1:0;else rP=cb.checked?1:0;document.getElementById('sub-'+t).classList.toggle('on',cb.checked);document.getElementById('tog-prot').style.display=(S.has('protese')||mP||rP)?'flex':'none';up();}
+function togX(k){const cb=document.getElementById('cb-'+k);cb.checked=!cb.checked;EX[k]=cb.checked?1:0;document.getElementById('tog-'+k)?.classList.toggle('on',cb.checked);document.getElementById('ex-'+k)?.classList.toggle('show',cb.checked);if(k==='laser')document.getElementById('lasersug').classList.toggle('show',[...S].some(p=>PC[p]?.laser)&&!cb.checked);up();}
+function onH(){const hid=gv('f-hosp');if(!hid||!S.size){document.getElementById('hauto').classList.remove('show');document.getElementById('hnote').textContent='';return;}const r=lkH(hid);document.getElementById('hauto').classList.add('show');document.getElementById('hauto-l').textContent=r.lb;document.getElementById('hauto-v').textContent=r.price!==null?'R$ '+fmt(r.price):'A consultar';document.getElementById('hauto-type').innerHTML=r.type==='dayclinic'?'<span class="ibadge ibdc">Day Clinic</span>':'<span class="ibadge ibd">Internação 1 Diária</span>';document.getElementById('hnote').textContent=r.bi?'✓ Bota pneumática e manta térmica inclusos neste pacote.':'';if(r.price!==null)sv('f-hval',r.price>0?fmt(r.price):'');up();}
+function updH(){const hc=cHon();const el=document.getElementById('hsug');if(hc.v>0&&S.size){el.classList.add('show');document.getElementById('hsvl').textContent=BRL(hc.v);document.getElementById('hsrl').textContent=hc.r||'Procedimento único';if(!hM)sv('f-hon',fmt(hc.v));}else el.classList.remove('show');}
+function setSeg(v){seg=v;document.getElementById('ro-s').classList.toggle('on',v);document.getElementById('ro-n').classList.toggle('on',!v);document.getElementById('segalert').classList.toggle('show',!v);up();}
+function gv(id){return(document.getElementById(id)||{}).value||'';}
+function sv(id,v){const e=document.getElementById(id);if(e)e.value=v;}
+function R(s){return parseFloat((s||'').replace(/[.]/g,'').replace(',','.'))||0;}
+function fmt(v){return v.toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});}
+function BRL(v){return'R$ '+fmt(v);}
+function addD(s,n){if(!s)return'';const[d,m,y]=s.split('/');const dt=new Date(+y,+m-1,+d);dt.setDate(dt.getDate()+n);return String(dt.getDate()).padStart(2,'0')+'/'+String(dt.getMonth()+1).padStart(2,'0')+'/'+dt.getFullYear();}
+function fmtD(r){if(!r)return'';const[y,m,d]=r.split('-');return d+'/'+m+'/'+y;}
+
+const SVGL=`<svg viewBox="0 0 60 62" fill="none" style="overflow:visible"><path d="M 30,9 A 22,22 0 0,0 30,53" stroke="#E6C3A8" stroke-width="3" stroke-linecap="round"/><path d="M 30,9 A 22,22 0 0,1 46,47" stroke="#E6C3A8" stroke-width="3" stroke-linecap="round"/><path d="M 41,51 A 22,22 0 0,1 36,53" stroke="#E6C3A8" stroke-width="3" stroke-linecap="round"/><line x1="30" y1="9" x2="30" y2="53" stroke="#E6C3A8" stroke-width="3" stroke-linecap="round"/></svg>`;
+const SVGS=`<svg viewBox="0 0 60 62" fill="none" style="overflow:visible"><path d="M 30,9 A 22,22 0 0,0 30,53" stroke="#c89a72" stroke-width="3" stroke-linecap="round"/><path d="M 30,9 A 22,22 0 0,1 46,47" stroke="#c89a72" stroke-width="3" stroke-linecap="round"/><path d="M 41,51 A 22,22 0 0,1 36,53" stroke="#c89a72" stroke-width="3" stroke-linecap="round"/><line x1="30" y1="9" x2="30" y2="53" stroke="#c89a72" stroke-width="3" stroke-linecap="round"/></svg>`;
+const HDR=(dF)=>`<div class="dhdr"><div class="dhdr-b"><div class="dhdr-svg">${SVGL}</div><div><div class="dhdr-nm">LUCAS<span>DANTAS</span></div><div class="dhdr-cr">CIRURGIA PLÁSTICA</div></div></div><div class="dhdr-r"><div class="dhdr-bg">Orçamento Cirúrgico</div>${dF?'<div class="dhdr-dt">Data '+dF+'</div>':''}</div></div>`;
+const FTR=`<div class="dftr"><div><div class="dftr-b"><div class="dftr-svg">${SVGS}</div><div class="dftr-nm">LUCAS<span>DANTAS</span></div></div><div class="dftr-info">21 99816 2721 &nbsp;&middot;&nbsp; www.drlucasdantas.com.br<br>Rua Almirante Guilherm 366, Leblon, Nono Andar — RJ &nbsp;&middot;&nbsp; Prédio Leblon Prime</div></div><div class="dfr"><strong>Dr. Lucas Dantas</strong><div>Cirurgião Plástico</div><div>CRM-RJ 116.571-2 / RQE 46.863</div></div></div>`;
+
+function up(){
+  const nome=gv('f-nome'),idade=gv('f-idade'),dF=fmtD(gv('f-data'));
+  const pp=getParts();
+  if(!S.size&&!nome){document.getElementById('doc-out').innerHTML=empty();return;}
+  const hon=R(gv('f-hon')),parc=gv('f-parc'),bol=gv('f-boleto');
+  const hid=gv('f-hosp'),hNm=hid?H[hid]?.n:'—';
+  const hr=hid&&S.size?lkH(hid):null;
+  const hV=R(gv('f-hval'));
+  const hPr=EX.prot,hLa=EX.laser,hBo=EX.bota,hGl=EX.gluteo;
+  const pAv=R(gv('f-prot-av')),emp=gv('f-emp');
+  const lV=R(gv('f-laser')),bV=R(gv('f-bota'));
+  const obs=gv('f-obs').trim();
+  const sutia=[...S].some(p=>PC[p]?.sutia),cinta=[...S].some(p=>PC[p]?.cinta),fisio=[...S].some(p=>PC[p]?.fisio);
+  const interManual=gv('f-inter');
+  let iT=interManual||(hr?.type==='dayclinic'?'Day Clinic':'Internação 1 Diária');
+  let subs=[],tot=0;
+  const ar=(l,v)=>subs.push([l,v]);
+  if(hon){ar('Honorários Médicos — Dr. Lucas Dantas',hon);tot+=hon;}
+  if(hPr&&pAv){ar('Prótese Mamária — '+emp,pAv);tot+=pAv;}
+  if(hV){ar(hNm||'Hospital',hV);tot+=hV;}
+  if(hBo&&bV&&!hr?.bi){ar('Bota Pneumática',bV);tot+=bV;}
+  if(hLa&&lV){ar('Laser de Argônio — ARGON 4',lV);tot+=lV;}
+  let ki=[];
+  if(fisio)ki.push('Fisioterapia Intraoperatória com termoanálise, Laser nas cicatrizes e Kinesio Tape — 02 sessões de acompanhamento pós-operatório com a Fisioterapeuta');
+  let kd='remédios do pós-operatório, robe de seda, porta dreno e toalha exclusiva para higiene das cicatrizes';
+  if(sutia&&cinta)kd='01 sutiã cirúrgico, 01 cinta cirúrgica, '+kd;
+  else if(sutia)kd='01 sutiã cirúrgico, '+kd;
+  else if(cinta)kd='01 cinta cirúrgica, '+kd;
+  ki.push('Kit pós-operatório: '+kd);
+  ki.push('Equipe Cirúrgica: Anestesista, Cirurgião Plástico auxiliar e Instrumentadora Cirúrgica');
+
+  document.getElementById('doc-out').innerHTML=`
+<div class="doc">
+  <table class="doc-pt" role="presentation">
+    <thead><tr><td>${HDR(dF)}</td></tr></thead>
+    <tfoot><tr><td>${FTR}</td></tr></tfoot>
+    <tbody><tr><td>
+      <div class="dttl"><h1>Orçamento Cirúrgico</h1>${pp.length?'<div class="plbl">'+pp.join(' &middot; ')+'</div>':''}<div class="dgl"></div></div>
+      <div class="dbody">
+        <div class="pbox">
+          <div class="pr"><span class="pk">Paciente</span><span class="pv">${nome||'—'}</span></div>
+          <div class="pr"><span class="pk">Idade</span><span class="pv">${idade?idade+' anos':'—'}</span></div>
+          <div class="pr"><span class="pk">Cirurgia</span><span class="pv">${pp.join(' + ')||'—'}</span></div>
+          <div class="pr"><span class="pk">Internação</span><span class="pv">${iT}</span></div>
+        </div>
+        <div class="sec"><div class="sttl">HONORÁRIOS MÉDICOS</div><div class="fmn"><span class="flb">Equipe Dr. Lucas Dantas</span><span class="fvl">${BRL(hon)}</span></div><div class="pgmt"><span class="pgmt-pill parc">✓ ${parc}</span>${bol?'<span class="pgmt-pill bol">✓ '+bol+'</span>':''}</div></div>
+        ${hPr&&pAv?`<div class="sec"><div class="sttl">PRÓTESE MAMÁRIA</div><p style="font-size:11px;color:var(--muted);margin-bottom:4px">Empresa: <strong style="color:var(--navy)">${emp}</strong> &nbsp;·&nbsp; Pagamento realizado diretamente à empresa fornecedora.</p><table class="ptbl"><thead><tr><td>Forma de pagamento</td><td style="text-align:right">Valor</td></tr></thead><tbody><tr class="ptbl-av"><td>À vista / PIX</td><td>${BRL(pAv)}</td></tr><tr><td>1x no cartão de crédito</td><td>${BRL(Math.round(pAv*1.07))}</td></tr><tr><td>3x no cartão de crédito</td><td>${BRL(Math.round(pAv*1.12))}</td></tr><tr><td>6x no cartão de crédito</td><td>${BRL(Math.round(pAv*1.19))}</td></tr><tr><td>10x no cartão de crédito</td><td>${BRL(Math.round(pAv*1.30))}</td></tr></tbody></table></div>`:''}
+        <div class="sec"><div class="sttl">HOSPITAL</div><div class="ir"><span class="il">${hNm||'—'}</span><span class="iv">${hV?BRL(hV):'A consultar'}</span></div>${hBo&&bV&&!hr?.bi?'<div class="ir"><span class="il">Bota Pneumática</span><span class="iv">'+BRL(bV)+'</span></div>':''}${hr?.bi?'<div class="int">✓ Bota pneumática e manta térmica inclusos neste pacote.</div>':''}<div class="int">Pagamento à vista ou em até 6x no cartão — diretamente com o hospital.</div></div>
+        ${hLa&&lV?`<div class="sec"><div class="sttl">TECNOLOGIA</div><div class="ir"><span class="il">Laser de Argônio — ARGON 4</span><span class="iv">${BRL(lV)}</span></div><div class="int">Retração de pele, flacidez e definição do contorno corporal.</div></div>`:''}
+        ${hGl?`<div class="sec"><div class="sttl">BENEFÍCIO INCLUSO</div><div class="ir"><span class="il" style="color:var(--green);font-weight:600">✓ Enxertia Glútea</span><span class="iv" style="color:var(--green)">Inclusa</span></div><div class="int">Valor de referência: R$ 8.000 — benefício incluído no fechamento da lipoaspiração.</div></div>`:''}
+        <div class="sec"><div class="sttl">INCLUÍDO NO PACOTE</div><ul class="ckl">${ki.map(i=>'<li>'+i+'</li>').join('')}</ul></div>
+        ${!seg?'<div class="sal"><strong>Seguro Cirúrgico:</strong> paciente sem convênio ativo — custo adicional do seguro a consultar.</div>':''}
+        ${obs?'<div class="sec"><div class="sttl">OBSERVAÇÕES</div><p style="font-size:11.5px;color:#555;line-height:1.7;word-break:break-word;overflow-wrap:break-word;white-space:pre-wrap">'+obs+'</p></div>':''}
+        <div class="sec" style="margin-top:4px"><div class="sttl">RESUMO DO ORÇAMENTO</div><table class="stbl"><tbody>${subs.map(([l,v])=>'<tr><td class="sk">'+l+'</td><td class="sv">'+BRL(v)+'</td></tr>').join('')}</tbody></table><div class="totln"><span class="tl">Total Geral</span><span class="tv">${BRL(tot)}</span></div><div class="totvl">${dF?'Válido até '+addD(dF,15):''}</div></div>
+        <ul class="dnotes"><li>Pagamento da internação hospitalar realizado diretamente ao hospital.</li>${hPr?'<li>Pagamento da prótese mamária realizado diretamente à empresa fornecedora.</li>':''}<li>Validade da proposta: 15 dias a contar da data do envio.</li></ul>
+      </div>
+    </td></tr></tbody>
+  </table>
+</div>`;
+
+  const cb=document.getElementById('cbadge'),hc=cHon();
+  if(pp.length>1){cb.classList.add('show');cb.innerHTML='<strong>Combinação:</strong> '+pp.join(' + ')+' &nbsp;&middot;&nbsp; Honorário sugerido: <strong>'+BRL(hc.v)+'</strong>';}
+  else cb.classList.remove('show');
+}
+
+function empty(){return'<div class="empty"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg><p>Selecione os procedimentos<br>para gerar o orçamento.</p></div>';}
+function printDoc(){if(!S.size&&!gv('f-nome')){alert('Preencha os dados antes de imprimir.');return;}window.print();}
+function clearAll(){S.clear();mP=0;rP=0;seg=1;EX={prot:0,laser:0,bota:0,gluteo:0};hM=0;document.querySelectorAll('.pc').forEach(e=>e.classList.remove('on'));document.querySelectorAll('.tog').forEach(e=>e.classList.remove('on'));document.querySelectorAll('.tcb').forEach(e=>{e.checked=false;});document.querySelectorAll('.exbox').forEach(e=>e.classList.remove('show'));['sub-masto','sub-redu'].forEach(id=>document.getElementById(id)?.classList.remove('show','on'));['ben-glut','cbadge','lasersug','hauto','hsug','segalert'].forEach(id=>document.getElementById(id)?.classList.remove('show'));document.getElementById('tog-prot').style.display='none';document.getElementById('tog-gluteo').style.display='none';document.getElementById('ro-s').classList.add('on');document.getElementById('ro-n').classList.remove('on');['f-nome','f-idade','f-hon','f-hval','f-prot-av','f-obs'].forEach(id=>sv(id,''));sv('f-hosp','');sv('f-inter','');sv('f-parc','10x sem juros');sv('f-boleto','12x boleto');sv('f-laser','5.000,00');sv('f-bota','730,00');document.getElementById('f-data').value=new Date().toISOString().split('T')[0];document.getElementById('doc-out').innerHTML=empty();}
+document.getElementById('f-hon').addEventListener('keydown',()=>{hM=1;});
+document.getElementById('f-data').value=new Date().toISOString().split('T')[0];
+document.getElementById('doc-out').innerHTML=empty();
+</script>
+</body>
+</html>
