@@ -1,0 +1,927 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Portal · Dr. Lucas Dantas</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600&family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--n:#2A334D;--g:#E6C3A8;--gd:#c9a07e;--bg:#f6f2ee;--w:#fff;--bd:#ddd6ce;--lt:#888}
+html,body{height:100%;font-family:'Montserrat',sans-serif;background:var(--bg);color:var(--n)}
+#ls{position:fixed;inset:0;background:var(--n);display:flex;align-items:center;justify-content:center;flex-direction:column;gap:24px;overflow-y:auto;padding:20px;z-index:9999}
+.ll .nm{font-family:'Cinzel',serif;color:#fff;font-size:24px;letter-spacing:4px;text-align:center}
+.ll .nm b{color:var(--g)}
+.ll .sb2{color:var(--g);font-size:9px;letter-spacing:4px;text-align:center;display:block;margin-top:3px}
+.lbox{background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.15);border-radius:14px;padding:28px 32px;width:300px;max-width:90vw}
+.lbox h3{font-family:'Cinzel',serif;color:var(--g);font-size:12px;letter-spacing:2px;text-align:center;margin-bottom:20px}
+.lf{margin-bottom:13px}
+.lf label{display:block;font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:rgba(255,255,255,.5);margin-bottom:5px}
+.lf input{width:100%;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);border-radius:7px;padding:10px 12px;color:#fff;font-family:'Montserrat',sans-serif;font-size:13px;outline:none}
+.lf input:focus{border-color:var(--g)}
+.lbtn{width:100%;background:var(--g);color:var(--n);border:none;border-radius:7px;padding:11px;font-family:'Montserrat',sans-serif;font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;cursor:pointer;margin-top:4px}
+.lbtn:hover{background:var(--gd)}
+.lerr{color:#ff9f9f;font-size:11px;text-align:center;margin-top:8px;display:none}
+#portal{display:none;flex-direction:column;min-height:100vh}
+header{background:var(--n);padding:11px 20px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
+.hl{font-family:'Cinzel',serif;color:#fff;font-size:14px;letter-spacing:3px}
+.hl b{color:var(--g)}
+.hs{color:var(--g);font-size:8px;letter-spacing:3px;margin-top:2px}
+.hr{display:flex;align-items:center;gap:12px}
+.hu{color:var(--g);font-size:11px;font-weight:600}
+.syncDot{width:8px;height:8px;border-radius:50%;background:#888;transition:.3s}
+.syncDot.ok{background:#27ae60}
+.syncDot.err{background:#e74c3c}
+.syncDot.syn{background:#f39c12;animation:pulse .8s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+.hout{background:none;border:1px solid rgba(255,255,255,.2);color:rgba(255,255,255,.6);border-radius:5px;padding:4px 10px;font-family:'Montserrat',sans-serif;font-size:10px;font-weight:600;cursor:pointer}
+.hout:hover{border-color:var(--g);color:var(--g)}
+nav{background:var(--w);border-bottom:1px solid var(--bd);display:flex;padding:0 16px;overflow-x:auto;-webkit-overflow-scrolling:touch;position:sticky;top:50px;z-index:99;flex-shrink:0}
+.nb{padding:10px 13px;border:none;background:none;font-family:'Montserrat',sans-serif;font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--lt);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px;white-space:nowrap;-webkit-tap-highlight-color:transparent}
+.nb.on{color:var(--n);border-color:var(--g)}
+.pg{display:none;padding:16px;max-width:920px;margin:0 auto;width:100%;padding-bottom:40px}
+.pg.on{display:block}
+.pgf{display:none;flex-direction:column;height:calc(100vh - 100px)}
+.pgf.on{display:flex}
+h2{font-family:'Cinzel',serif;font-size:13px;letter-spacing:2px;padding-bottom:10px;border-bottom:1px solid var(--g);margin-bottom:18px}
+.cframe{width:100%;flex:1;border:none;min-height:300px}
+.cwrap{display:flex;flex-direction:column;flex:1;overflow:hidden}
+.carea{flex:1;overflow-y:auto;padding:12px 14px;display:flex;flex-direction:column;gap:9px;-webkit-overflow-scrolling:touch}
+.msg{display:flex;gap:8px;align-items:flex-end}
+.msg.user{flex-direction:row-reverse}
+.bub{padding:8px 12px;border-radius:14px;font-size:13px;line-height:1.6;max-width:78%;word-break:break-word}
+.msg.ai .bub{background:var(--w);color:var(--n);border-radius:4px 14px 14px 14px;box-shadow:0 1px 4px rgba(0,0,0,.08)}
+.msg.user .bub{background:var(--n);color:#fff;border-radius:14px 14px 4px 14px}
+.av{width:26px;height:26px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700}
+.av.ai{background:var(--g);color:var(--n)}
+.av.user{background:var(--n);color:#fff}
+.typing{display:flex;gap:4px;padding:9px 12px;background:var(--w);border-radius:4px 14px 14px 14px;box-shadow:0 1px 4px rgba(0,0,0,.08)}
+.dot{width:6px;height:6px;background:var(--bd);border-radius:50%;animation:blink 1.2s infinite}
+.dot:nth-child(2){animation-delay:.2s}.dot:nth-child(3){animation-delay:.4s}
+@keyframes blink{0%,80%,100%{opacity:.3}40%{opacity:1}}
+.chips{display:flex;gap:6px;flex-wrap:wrap;padding:7px 14px;background:var(--w);border-top:1px solid var(--bd);flex-shrink:0}
+.chip{background:var(--bg);border:1px solid var(--bd);border-radius:20px;padding:4px 10px;font-size:11px;font-weight:600;cursor:pointer;color:var(--n)}
+.chip:hover{border-color:var(--n)}
+.cbar{background:var(--w);border-top:1px solid var(--bd);padding:9px 12px;display:flex;gap:8px;align-items:flex-end;flex-shrink:0}
+.ci{flex:1;border:1.5px solid var(--bd);border-radius:18px;padding:8px 14px;font-family:'Montserrat',sans-serif;font-size:13px;color:var(--n);outline:none;resize:none;max-height:90px;line-height:1.4}
+.ci:focus{border-color:var(--gd)}
+.ib{width:34px;height:34px;border-radius:50%;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0}
+.snd{background:var(--n);color:#fff}.snd:hover{background:#1a2235}.snd:disabled{background:var(--bd)}
+.att{background:var(--bg);border:1px solid var(--bd);color:var(--n)}.att:hover{background:var(--bd)}
+.aprev{display:flex;align-items:center;gap:7px;background:var(--bg);border-radius:7px;padding:5px 10px;margin:0 12px 4px;font-size:11px;flex-shrink:0}
+.rcard{background:#f0fff4;border:1px solid #b7e4c7;border-radius:9px;padding:9px 12px;margin-top:5px;font-size:12px}
+.rtit{font-weight:700;color:#155724;font-size:11px;letter-spacing:.4px;text-transform:uppercase;margin-bottom:5px}
+.ri{display:flex;justify-content:space-between;padding:3px 0;border-bottom:1px solid #c3e6cb}
+.ri:last-child{border-bottom:none}
+.rv{font-weight:700;color:#155724}
+.sbar{background:var(--n);border-radius:9px;padding:14px 18px;display:flex;gap:18px;margin-bottom:16px;flex-wrap:wrap}
+.si .sl{font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--g)}
+.si .sv{font-family:'Cinzel',serif;font-size:18px;color:#fff;font-weight:600;line-height:1.3}
+.stabs{display:flex;border-bottom:1px solid var(--bd);background:var(--w);border-radius:8px 8px 0 0;padding:0 12px}
+.stab{padding:9px 13px;border:none;background:none;font-family:'Montserrat',sans-serif;font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px;color:var(--lt)}
+.stab.on{color:var(--n);border-color:var(--g)}
+.msum{background:var(--n);border-radius:9px;padding:13px 18px;margin-bottom:13px;display:flex;gap:18px;flex-wrap:wrap}
+.rt{width:100%;border-collapse:collapse;background:var(--w);border-radius:8px;overflow:hidden;box-shadow:0 1px 6px rgba(0,0,0,.07);font-size:12px}
+.rt th{background:var(--n);color:#fff;font-size:9px;letter-spacing:1px;text-transform:uppercase;padding:8px 10px;text-align:left;font-weight:600}
+.rt td{padding:8px 10px;border-bottom:1px solid #ede8e3;vertical-align:middle}
+.rt tr:last-child td{border-bottom:none}
+.rt tr:hover td{background:#faf7f4}
+.bdg{display:inline-block;padding:2px 8px;border-radius:20px;font-size:10px;font-weight:700;cursor:pointer;white-space:nowrap}
+.bdg.p{background:#d4edda;color:#155724}
+.bdg.q{background:#fff3cd;color:#856404}
+.del{background:none;border:none;color:#ccc;cursor:pointer;font-size:13px;padding:2px 4px}
+.del:hover{color:#e55}
+.empty{text-align:center;padding:36px;color:var(--lt);font-size:13px;background:var(--w);border-radius:8px;box-shadow:0 1px 6px rgba(0,0,0,.07)}
+.bc{background:var(--w);border-radius:9px;box-shadow:0 1px 6px rgba(0,0,0,.07);padding:15px 17px;margin-bottom:11px}
+.pw{background:#ede8e3;border-radius:20px;height:7px;margin:9px 0}
+.pb{background:var(--n);border-radius:20px;height:7px;transition:.4s}
+.ba{display:flex;gap:7px;margin-top:9px;padding-top:9px;border-top:1px solid var(--bd);flex-wrap:wrap}
+.bb{padding:7px 12px;border-radius:6px;font-family:'Montserrat',sans-serif;font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;cursor:pointer;border:none}
+.bba{background:var(--bg);color:var(--n);border:1.5px solid var(--bd)}.bba:hover{border-color:var(--n)}
+.bbq{background:var(--n);color:#fff}
+.sr td{background:#f0fff4}.sb3 td{background:#f0fff4}.sp td{background:#fffdf0}.sf td{background:#fafafa;color:var(--lt)}
+.fbar{display:flex;gap:7px;margin-bottom:12px;flex-wrap:wrap;align-items:center}
+.fsel{width:auto;padding:6px 10px;font-size:12px;border:1.5px solid var(--bd);border-radius:6px;font-family:'Montserrat',sans-serif;color:var(--n);background:var(--w);outline:none}
+.nfee{display:inline-block;padding:2px 8px;border-radius:20px;font-size:10px;font-weight:700;cursor:pointer;background:#fff3cd;color:#856404;border:1px solid #ffc107;white-space:nowrap}
+.nfed{display:inline-block;padding:2px 8px;border-radius:20px;font-size:10px;font-weight:700;cursor:pointer;background:#d4edda;color:#155724;white-space:nowrap}
+.nfep{display:inline-block;padding:2px 8px;border-radius:20px;font-size:10px;font-weight:700;background:#f0f0f0;color:#888;white-space:nowrap}
+.mbg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:1000;align-items:center;justify-content:center}
+.mbox{background:#fff;border-radius:11px;padding:24px 28px;width:300px;max-width:90vw}
+.mtit{font-family:'Cinzel',serif;font-size:12px;letter-spacing:1.5px;margin-bottom:12px;color:var(--n)}
+.mbtn{flex:1;border:none;border-radius:6px;padding:9px;font-family:'Montserrat',sans-serif;font-size:11px;font-weight:700;cursor:pointer}
+.wt{display:inline-block;font-size:9px;padding:1px 5px;border-radius:9px;font-weight:700;margin-left:3px;vertical-align:middle}
+.wd{background:#e8eaf6;color:#2A334D}
+.wl{background:#e8f5e9;color:#1b5e20}
+.wn{background:#fff3e0;color:#e65100}
+.dgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px;margin-bottom:14px}
+.dcard{background:var(--w);border-radius:9px;padding:16px;box-shadow:0 1px 6px rgba(0,0,0,.07)}
+.dcard .dtit{font-size:10px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;color:var(--lt);margin-bottom:10px}
+.dftb{padding:7px 14px;border:1.5px solid var(--bd);border-radius:20px;font-family:'Montserrat',sans-serif;font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;cursor:pointer;background:var(--w);color:var(--lt)}
+.dftb.on{background:var(--n);color:#fff;border-color:var(--n)}
+.kpi2{background:var(--w);border-radius:9px;padding:11px 14px;display:flex;gap:14px;flex-wrap:wrap;margin-bottom:14px;box-shadow:0 1px 6px rgba(0,0,0,.07)}
+.kpi2 .si .sv{font-size:14px}
+.pend-row{display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid var(--bd);font-size:12px}
+.pend-row:last-child{border-bottom:none}
+.pend-tag{font-size:10px;font-weight:700;padding:2px 7px;border-radius:20px}
+</style>
+</head>
+<body>
+
+<div id="ls">
+  <div class="ll">
+    <div class="nm">LUCAS<b>DANTAS</b></div>
+    <span class="sb2">CIRURGIA PLÁSTICA · PORTAL INTERNO</span>
+  </div>
+  <div class="lbox">
+    <h3>ACESSO RESTRITO</h3>
+    <div class="lf"><label>Usuário</label><input type="text" id="liu" placeholder="seu nome" autocomplete="username"></div>
+    <div class="lf"><label>Senha</label><input type="password" id="lip" placeholder="••••••••" autocomplete="current-password" onkeydown="if(event.key==='Enter')doLogin()"></div>
+    <button class="lbtn" onclick="doLogin()">ENTRAR</button>
+    <div class="lerr" id="lerr">Usuário ou senha incorretos</div>
+  </div>
+</div>
+
+<div id="portal">
+  <header>
+    <div><div class="hl">LUCAS<b>DANTAS</b></div><div class="hs">PORTAL INTERNO</div></div>
+    <div class="hr">
+      <span class="syncDot" id="sd" title="Sincronização"></span>
+      <span class="hu" id="hun"></span>
+      <button class="hout" onclick="doLogout()">Sair</button>
+    </div>
+  </header>
+  <nav id="nav"></nav>
+
+  <div id="pg-dash" class="pg">
+    <h2>DASHBOARD FINANCEIRO</h2>
+    <div style="display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap;align-items:center">
+      <button id="dft-w" class="dftb" onclick="setDashF('w')">📅 Semana</button>
+      <button id="dft-m" class="dftb on" onclick="setDashF('m')">📅 Mês Atual</button>
+      <button id="dft-a" class="dftb" onclick="setDashF('a')">📊 Máximo</button>
+      <span id="dft-label" style="font-size:10px;color:var(--lt);margin-left:4px"></span>
+    </div>
+    <div class="sbar" id="dc"></div>
+    <div class="kpi2" id="dc2"></div>
+    <div class="dgrid">
+      <div class="dcard"><div class="dtit">Faturamento por Mês</div><div style="position:relative;height:190px"><canvas id="c1"></canvas></div></div>
+      <div class="dcard"><div class="dtit">Forma de Pagamento</div><div style="position:relative;height:190px"><canvas id="c2"></canvas></div></div>
+      <div class="dcard"><div class="dtit">Consultas vs Cirurgias</div><div style="position:relative;height:190px"><canvas id="c3"></canvas></div></div>
+      <div class="dcard"><div class="dtit">Status NFe</div><div style="position:relative;height:190px"><canvas id="c4"></canvas></div></div>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px;margin-bottom:14px">
+      <div class="dcard"><div class="dtit">⚠️ Pendências Críticas</div><div id="dpend"></div></div>
+      <div class="dcard"><div class="dtit">Top Entradas — Cirurgias</div><div id="dtop"></div></div>
+    </div>
+  </div>
+
+  <div id="pg-calc" class="pgf">
+    <iframe class="cframe" src="https://69cb11fda0aab851b880795c--magnificent-lamington-16fe70.netlify.app/" allowfullscreen></iframe>
+  </div>
+
+  <div id="pg-chat" class="pgf">
+    <div class="cwrap">
+      <div class="carea" id="ca"></div>
+      <div class="chips">
+        <span class="chip" onclick="sc('Consulta R$400 hoje')">💬 Consulta R$400</span>
+        <span class="chip" onclick="sc('Consulta campanha R$250')">💬 Campanha R$250</span>
+        <span class="chip" onclick="sc('Quais comissões estão pendentes?')">📊 Pendentes</span>
+        <span class="chip" onclick="sc('Resumo do mês de março')">📅 Março</span>
+      </div>
+      <div class="aprev" id="ap" style="display:none"></div>
+      <div class="cbar">
+        <input type="file" id="fi" accept="image/*,.pdf" style="display:none" onchange="onFile(event)">
+        <button class="ib att" onclick="document.getElementById('fi').click()">📎</button>
+        <textarea class="ci" id="ci" placeholder="Consulta, cirurgia, ou envie comprovante..." rows="1" onkeydown="onCK(event)" oninput="autoH(this)"></textarea>
+        <button class="ib snd" id="sb" onclick="sendMsg()">➤</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="pg-com" class="pg">
+    <h2>REGISTRO DE COMISSÕES</h2>
+    <div class="sbar">
+      <div class="si"><div class="sl">A Receber</div><div class="sv" id="cp"></div></div>
+      <div class="si"><div class="sl">Recebido</div><div class="sv" id="cr"></div></div>
+      <div class="si"><div class="sl">Total geral</div><div class="sv" id="ca2"></div></div>
+      <div class="si"><div class="sl">Boletos abertos</div><div class="sv" id="cb"></div></div>
+    </div>
+    <div class="stabs">
+      <button class="stab on" id="sm" onclick="setSt('m')">Mensal</button>
+      <button class="stab" id="sb2" onclick="setSt('b')">Boletos em Andamento</button>
+    </div>
+    <div id="secm">
+      <div style="background:var(--w);padding:0 12px;border-bottom:1px solid var(--bd)"><div id="mt" style="display:flex;flex-wrap:wrap"></div></div>
+      <div id="ms" class="msum" style="display:none;margin-top:12px"></div>
+      <div id="ce" class="empty" style="margin-top:12px"><div style="font-size:32px;margin-bottom:7px">💰</div>Nenhuma comissão registrada.</div>
+      <table class="rt" id="ct" style="display:none;margin-top:12px">
+        <thead><tr><th>Data</th><th>Paciente</th><th>Procedimento</th><th>Valor</th><th>Pgto</th><th>Comissão</th><th>Por</th><th>Status</th><th></th></tr></thead>
+        <tbody id="cb2"></tbody>
+      </table>
+    </div>
+    <div id="secb" style="display:none;padding-top:12px"><div id="bl"></div></div>
+  </div>
+
+  <div id="pg-sal" class="pg">
+    <h2>SALÁRIO & PAGAMENTOS</h2>
+    <div class="sbar" id="sc2"></div>
+    <div id="st2"></div>
+    <div style="background:var(--bg);border-radius:8px;padding:11px 13px;margin-top:11px;font-size:12px;color:var(--lt);line-height:1.9">
+      📋 Pagamento ~dia 14 do mês seguinte. Março: base recebida, comissões fev/26 vêm em abril. Convênio Amil (~R$1.000/mês) confirmado pelo Divo.
+    </div>
+  </div>
+
+  <div id="pg-rel" class="pg">
+    <h2>RELATÓRIO FINANCEIRO</h2>
+    <div class="sbar" id="rc"></div>
+    <div class="fbar">
+      <select class="fsel" id="rm" onchange="renderRel()"><option value="">Todos os meses</option></select>
+      <select class="fsel" id="rt2" onchange="renderRel()">
+        <option value="">Consultas + Cirurgias</option>
+        <option value="consulta">Só Consultas</option>
+        <option value="cirurgia">Só Cirurgias</option>
+      </select>
+      <select class="fsel" id="rn" onchange="renderRel()">
+        <option value="">Todos NFe</option>
+        <option value="a_emitir">A Emitir</option>
+        <option value="pendente">Pendente</option>
+        <option value="emitida">Emitida</option>
+      </select>
+      <button onclick="expRel()" style="background:var(--n);color:#fff;border:none;border-radius:6px;padding:7px 12px;font-family:'Montserrat',sans-serif;font-size:10px;font-weight:700;cursor:pointer">⬇ CSV</button>
+      <button onclick="syncFromSheets(true)" style="background:var(--bg);color:var(--n);border:1.5px solid var(--bd);border-radius:6px;padding:7px 12px;font-family:'Montserrat',sans-serif;font-size:10px;font-weight:700;cursor:pointer">↻ Sync</button>
+    </div>
+    <div id="re" class="empty"><div style="font-size:32px;margin-bottom:7px">📋</div>Nenhuma entrada registrada.</div>
+    <table class="rt" id="rtb" style="display:none">
+      <thead><tr><th>Data</th><th>Paciente</th><th>Procedimento</th><th>Valor</th><th>Forma</th><th>Data Evento</th><th>Por</th><th>NFe</th><th></th></tr></thead>
+      <tbody id="rb"></tbody>
+    </table>
+  </div>
+
+  <div id="pg-log" class="pg">
+    <h2>LOG DE ATIVIDADES</h2>
+    <div class="sbar" id="lc"></div>
+    <div id="le" class="empty" style="display:none"><div style="font-size:32px;margin-bottom:7px">🔍</div>Nenhum log ainda.</div>
+    <table class="rt" id="lt">
+      <thead><tr><th>Data/Hora</th><th>Usuário</th><th>Ação</th><th>Detalhe</th><th>Device</th></tr></thead>
+      <tbody id="lb2"></tbody>
+    </table>
+  </div>
+</div>
+
+<div class="mbg" id="mb">
+  <div class="mbox">
+    <div class="mtit">DATA DA CONSULTA / CIRURGIA</div>
+    <label style="font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--lt);display:block;margin-bottom:5px">Data prevista</label>
+    <input type="date" id="md" style="width:100%;padding:8px;border:1.5px solid var(--bd);border-radius:6px;font-size:14px;margin-bottom:12px;outline:none">
+    <div style="display:flex;gap:9px">
+      <button class="mbtn" onclick="saveMod()" style="background:var(--n);color:#fff">Salvar</button>
+      <button class="mbtn" onclick="closeMod()" style="background:none;border:1.5px solid var(--bd);color:var(--lt)">Cancelar</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ═══ CONFIG ═══════════════════════════════════════
+// Chave API removida do HTML — chamada feita via Apps Script proxy
+var SU='https://script.google.com/macros/s/AKfycbxBmjHTIVGdxzVxvD8uEIXhFbAp2hPVtPow7z14lxRMn2hTfKx9gFsZnhryv6xMvJ6S/exec';
+var USERS={
+  duda: {senha:'1234',nome:'Duda',pages:['dash','chat','com','sal','rel','log']},
+  lucas:{senha:'1234',nome:'Dr. Lucas',pages:['dash','calc','rel','log']},
+  nubya:{senha:'@Plastica2023',nome:'Nubya',pages:['chat','rel']}
+};
+var PL={dash:'📊 Dashboard',calc:'🧮 Calculadora',chat:'✨ IA Chat',com:'💰 Comissões',sal:'📊 Salário',rel:'📋 Relatório',log:'🔍 Log'};
+
+// ═══ HELPERS ══════════════════════════════════════
+function fd(v){return 'R$ '+Number(v||0).toLocaleString('pt-BR',{minimumFractionDigits:2,maximumFractionDigits:2});}
+function el(id){return document.getElementById(id);}
+function sh(id,d){var e=el(id);if(e)e.style.display=d;}
+function nowBR(){return new Date().toLocaleString('pt-BR');}
+function todayBR(){return new Date().toLocaleDateString('pt-BR');}
+function dev(){var ua=navigator.userAgent;if(/iPhone|iPad/i.test(ua))return'📱 iOS';if(/Android/i.test(ua))return'📱 Android';return'🖥️ Desktop';}
+function who(n){if(!n)return'';var c=n==='Duda'?'wd':n==='Dr. Lucas'?'wl':'wn';return '<span class="wt '+c+'">'+n+'</span>';}
+function isPast(s){if(!s||s.indexOf('Após')>=0)return false;var p=s.split('/');if(p.length<3)return false;var d=new Date(p[2],p[1]-1,p[0]);return d<=new Date();}
+
+// FIX: guard para datas vazias/inválidas — retorna '' se inválido
+function mKey(d){
+  var p=(d||'').split('/');
+  if(p.length<3||!p[2]||!p[1])return '';
+  return p[2]+'-'+p[1]; // YYYY-MM
+}
+
+var MF={'01':'Jan','02':'Fev','03':'Mar','04':'Abr','05':'Mai','06':'Jun','07':'Jul','08':'Ago','09':'Set','10':'Out','11':'Nov','12':'Dez'};
+var MFL={'01':'Janeiro','02':'Fevereiro','03':'Março','04':'Abril','05':'Maio','06':'Junho','07':'Julho','08':'Agosto','09':'Setembro','10':'Outubro','11':'Novembro','12':'Dezembro'};
+function mLab(k){var p=(k||'').split('-');return (MFL[p[1]]||p[1])+' '+p[0];}
+function inferType(proc){var p=(proc||'').toLowerCase();return (p.indexOf('cirurgia')>=0||p.indexOf('mamoplastia')>=0||p.indexOf('lipo')>=0||p.indexOf('abdominoplastia')>=0||p.indexOf('mastopexia')>=0||p.indexOf('lifting')>=0||p.indexOf('bleparo')>=0||p.indexOf('gineco')>=0||p.indexOf('silicone')>=0)?'cirurgia':'consulta';}
+
+// ═══ STORAGE ══════════════════════════════════════
+var INIT_E=[
+  {id:1743116401,date:'28/03/2026',pac:'Monique dos S. Sá Gonçalves',proc:'Consulta',val:400,pay:'—',com:50,paid:false,adicionadoPor:''},
+  {id:1743116402,date:'26/03/2026',pac:'Cintia Cristina da S. Carvalho',proc:'Cirurgia — Mama Aumento',val:13000,pay:'Cartão 10x',com:390,paid:false,adicionadoPor:''},
+  {id:1743116403,date:'21/03/2026',pac:'Ligia Perez',proc:'Consulta',val:400,pay:'—',com:50,paid:false,adicionadoPor:''},
+  {id:1743116404,date:'19/03/2026',pac:'Ana Paula de Sousa',proc:'Cirurgia — Mastopexia c/ prótese',val:14000,pay:'Híbrido',com:580,paid:false,adicionadoPor:''},
+  {id:1743116405,date:'19/03/2026',pac:'Claudyneia Conceição dos Santos',proc:'Consulta',val:250,pay:'—',com:30,paid:false,adicionadoPor:''},
+  {id:1743116406,date:'19/03/2026',pac:'Fábia Queiroz Gomes',proc:'Consulta',val:250,pay:'—',com:30,paid:false,adicionadoPor:''},
+  {id:1743116407,date:'14/03/2026',pac:'Aghata Ohanna P. Florêncio',proc:'Consulta',val:400,pay:'—',com:50,paid:false,adicionadoPor:''},
+  {id:1743116408,date:'14/03/2026',pac:'Maria Carolina O. Marinho',proc:'Consulta',val:400,pay:'—',com:50,paid:false,adicionadoPor:''},
+  {id:1743116409,date:'14/03/2026',pac:'Sheila Felinto Ataíde Martins',proc:'Consulta',val:400,pay:'—',com:50,paid:false,adicionadoPor:''},
+  {id:1743116410,date:'12/03/2026',pac:'Louíse Beatriz Sampaio Maia',proc:'Consulta',val:400,pay:'—',com:50,paid:false,adicionadoPor:''},
+  {id:1743116411,date:'07/03/2026',pac:'Thaynara Vitória dos S. Mangia',proc:'Consulta',val:400,pay:'—',com:50,paid:false,adicionadoPor:''},
+  {id:1743116412,date:'07/03/2026',pac:'Thamara Vitória dos S. Mangia',proc:'Consulta',val:400,pay:'—',com:50,paid:false,adicionadoPor:''},
+  {id:1743116413,date:'07/03/2026',pac:'Deborah Aguiar Frias',proc:'Consulta',val:300,pay:'—',com:30,paid:false,adicionadoPor:''},
+  {id:1740700801,date:'28/02/2026',pac:'Caroline Gouveia de Araújo',proc:'Consulta',val:400,pay:'—',com:50,paid:false,adicionadoPor:''},
+  {id:1740700802,date:'28/02/2026',pac:'Cristiane Mota da Cruz Cortes',proc:'Consulta',val:250,pay:'—',com:30,paid:false,adicionadoPor:''},
+  {id:1740614401,date:'27/02/2026',pac:'Flavia Viviane de F. L. Silva',proc:'Cirurgia — Mamoplastia+LipoAbdo',val:15381,pay:'PIX',com:769.05,paid:false,adicionadoPor:''},
+  {id:1740528001,date:'26/02/2026',pac:'Eliane César dos S. de Castro',proc:'Consulta',val:400,pay:'—',com:50,paid:false,adicionadoPor:''},
+  {id:1740528002,date:'26/02/2026',pac:'Cintia Cristina da S. Carvalho',proc:'Consulta',val:250,pay:'—',com:30,paid:false,adicionadoPor:''},
+  {id:1740441601,date:'25/02/2026',pac:'Janine R. da S. Camacho',proc:'Cirurgia — PIX restante',val:21700,pay:'PIX',com:1085,paid:false,adicionadoPor:''},
+  {id:1740355201,date:'21/02/2026',pac:'Tatiana de Oliveira Spedo',proc:'Consulta',val:400,pay:'—',com:50,paid:false,adicionadoPor:''},
+  {id:1740355202,date:'21/02/2026',pac:'Maria de Fátima A. S. Lima',proc:'Consulta',val:400,pay:'—',com:50,paid:false,adicionadoPor:''},
+  {id:1740182401,date:'19/02/2026',pac:'Davi Miguel Moura Pereira',proc:'Consulta',val:250,pay:'—',com:30,paid:false,adicionadoPor:''},
+  {id:1740009601,date:'04/02/2026',pac:'Suellen de Brito Finizio',proc:'Cirurgia — PIX quitado',val:20000,pay:'PIX',com:1000,paid:false,adicionadoPor:''},
+  {id:1740009602,date:'27/02/2026',pac:'Vanessa Aquino',proc:'Cirurgia — Mamoplastia Híbrida',val:13000,pay:'Cartão 10x',com:390,paid:false,adicionadoPor:''},
+  {id:1739836801,date:'05/02/2026',pac:'Flávia Jordão de Oliveira',proc:'Consulta',val:250,pay:'—',com:30,paid:false,adicionadoPor:''},
+  {id:1735001,date:'14/12/2025',pac:'Fernanda',proc:'Cirurgia — 70% restante',val:0,pay:'Via Divo',com:160.58,paid:true,adicionadoPor:''},
+  {id:1735002,date:'14/12/2025',pac:'Ingrid',proc:'Cirurgia — 70% restante',val:0,pay:'Via Divo',com:232,paid:true,adicionadoPor:''},
+  {id:1735003,date:'14/12/2025',pac:'Rafaela',proc:'Cirurgia — Cartão 10x (3%)',val:0,pay:'Via Divo',com:384,paid:true,adicionadoPor:''},
+  {id:1735004,date:'14/12/2025',pac:'Gláucia',proc:'Cirurgia — Híbrida (3%)',val:0,pay:'Via Divo',com:200,paid:true,adicionadoPor:''},
+  {id:1735005,date:'14/12/2025',pac:'Maria Eduarda',proc:'Cirurgia (3%)',val:0,pay:'Via Divo',com:230,paid:true,adicionadoPor:''},
+  {id:1735006,date:'14/12/2025',pac:'Convênio Amil',proc:'Comissão convênio dez/25',val:0,pay:'Via Divo',com:1000,paid:true,adicionadoPor:''},
+  {id:1736001,date:'14/01/2026',pac:'Consultas acumuladas set-dez/25',proc:'26 consultas',val:0,pay:'Via Divo',com:950,paid:true,adicionadoPor:''},
+  {id:1736002,date:'14/01/2026',pac:'Convênio Amil',proc:'Comissão convênio jan/26',val:0,pay:'Via Divo',com:1000,paid:true,adicionadoPor:''},
+];
+var INIT_B=[
+  {id:'b1',pac:'Sabrina Miranda T. da Silva',proc:'Cirurgia 27K',total:27000,parcelas:12,pagas:3,com:1350,quitado:false,adicionadoPor:''},
+  {id:'b2',pac:'Giovanna M. Chiapin Costa',proc:'Cirurgia 17K',total:17000,parcelas:12,pagas:2,com:850,quitado:false,adicionadoPor:''},
+  {id:'b3',pac:'Daiane N. da S. Marques',proc:'Cirurgia 18K',total:18000,parcelas:12,pagas:2,com:900,quitado:false,adicionadoPor:''},
+  {id:'b4',pac:'Ana Carla Ferreira',proc:'Cirurgia R$24k — sinal ago/25',total:24000,parcelas:1,pagas:0,com:1200,quitado:false,adicionadoPor:''},
+];
+var INIT_F=[
+  {id:9001,datePgto:'28/03/2026',pac:'Monique dos S. Sá Gonçalves',proc:'Consulta',val:400,pay:'PIX',type:'consulta',dateEvent:'28/03/2026',nfe:'a_emitir',nfeDate:null,adicionadoPor:''},
+  {id:9002,datePgto:'19/03/2026',pac:'Claudyneia Conceição dos Santos',proc:'Consulta',val:250,pay:'PIX',type:'consulta',dateEvent:'19/03/2026',nfe:'a_emitir',nfeDate:null,adicionadoPor:''},
+  {id:9003,datePgto:'19/03/2026',pac:'Fábia Queiroz Gomes',proc:'Consulta',val:250,pay:'PIX',type:'consulta',dateEvent:'19/03/2026',nfe:'a_emitir',nfeDate:null,adicionadoPor:''},
+  {id:9004,datePgto:'14/03/2026',pac:'Aghata Ohanna P. Florêncio',proc:'Consulta',val:400,pay:'PIX',type:'consulta',dateEvent:'14/03/2026',nfe:'a_emitir',nfeDate:null,adicionadoPor:''},
+  {id:9005,datePgto:'14/03/2026',pac:'Maria Carolina O. Marinho',proc:'Consulta',val:400,pay:'PIX',type:'consulta',dateEvent:'14/03/2026',nfe:'a_emitir',nfeDate:null,adicionadoPor:''},
+  {id:9006,datePgto:'14/03/2026',pac:'Sheila Felinto Ataíde Martins',proc:'Consulta',val:400,pay:'PIX',type:'consulta',dateEvent:'14/03/2026',nfe:'a_emitir',nfeDate:null,adicionadoPor:''},
+  {id:9007,datePgto:'12/03/2026',pac:'Louíse Beatriz Sampaio Maia',proc:'Consulta',val:400,pay:'PIX',type:'consulta',dateEvent:'12/03/2026',nfe:'a_emitir',nfeDate:null,adicionadoPor:''},
+  {id:9008,datePgto:'07/03/2026',pac:'Thaynara Vitória dos S. Mangia',proc:'Consulta',val:400,pay:'PIX',type:'consulta',dateEvent:'07/03/2026',nfe:'a_emitir',nfeDate:null,adicionadoPor:''},
+  {id:9009,datePgto:'07/03/2026',pac:'Thamara Vitória dos S. Mangia',proc:'Consulta',val:400,pay:'PIX',type:'consulta',dateEvent:'07/03/2026',nfe:'a_emitir',nfeDate:null,adicionadoPor:''},
+  {id:9010,datePgto:'07/03/2026',pac:'Deborah Aguiar Frias',proc:'Consulta',val:300,pay:'PIX',type:'consulta',dateEvent:'07/03/2026',nfe:'a_emitir',nfeDate:null,adicionadoPor:''},
+  {id:9011,datePgto:'30/03/2026',pac:'Daniella da Silva Gonzaga',proc:'Consulta — sinal',val:400,pay:'PIX',type:'consulta',dateEvent:'02/04/2026',nfe:'a_emitir',nfeDate:null,adicionadoPor:''},
+  {id:9012,datePgto:'31/03/2026',pac:'Elenir In-Albon',proc:'Consulta — sinal',val:200,pay:'PIX',type:'consulta',dateEvent:'02/04/2026',nfe:'pendente',nfeDate:null,adicionadoPor:''},
+  {id:9013,datePgto:'31/03/2026',pac:'Jessica Sousa da Silva Pinto',proc:'Consulta — sinal',val:150,pay:'PIX',type:'consulta',dateEvent:'09/04/2026',nfe:'pendente',nfeDate:null,adicionadoPor:''},
+  {id:9014,datePgto:'30/03/2026',pac:'Priscila de Paula Miranda',proc:'Consulta — sinal',val:200,pay:'PIX',type:'consulta',dateEvent:'11/04/2026',nfe:'pendente',nfeDate:null,adicionadoPor:''},
+  {id:9020,datePgto:'26/03/2026',pac:'Cintia Cristina da S. Carvalho',proc:'Cirurgia — Mama Aumento',val:13000,pay:'Cartão',type:'cirurgia',dateEvent:'08/04/2026',nfe:'pendente',nfeDate:null,adicionadoPor:''},
+  {id:9021,datePgto:'19/03/2026',pac:'Ana Paula de Sousa',proc:'Cirurgia — Mastopexia c/ prótese',val:14000,pay:'Híbrido',type:'cirurgia',dateEvent:'13/03/2026',nfe:'a_emitir',nfeDate:null,adicionadoPor:''},
+  {id:9030,datePgto:'28/02/2026',pac:'Caroline Gouveia de Araújo',proc:'Consulta',val:400,pay:'PIX',type:'consulta',dateEvent:'28/02/2026',nfe:'emitida',nfeDate:'01/04/2026',adicionadoPor:''},
+  {id:9031,datePgto:'28/02/2026',pac:'Cristiane Mota da Cruz Cortes',proc:'Consulta',val:250,pay:'PIX',type:'consulta',dateEvent:'28/02/2026',nfe:'emitida',nfeDate:'01/04/2026',adicionadoPor:''},
+  {id:9032,datePgto:'26/02/2026',pac:'Eliane César dos S. de Castro',proc:'Consulta',val:400,pay:'PIX',type:'consulta',dateEvent:'26/02/2026',nfe:'emitida',nfeDate:'01/04/2026',adicionadoPor:''},
+  {id:9033,datePgto:'21/02/2026',pac:'Tatiana de Oliveira Spedo',proc:'Consulta',val:400,pay:'PIX',type:'consulta',dateEvent:'21/02/2026',nfe:'emitida',nfeDate:'01/04/2026',adicionadoPor:''},
+  {id:9034,datePgto:'21/02/2026',pac:'Maria de Fátima A. S. Lima',proc:'Consulta',val:400,pay:'PIX',type:'consulta',dateEvent:'21/02/2026',nfe:'emitida',nfeDate:'01/04/2026',adicionadoPor:''},
+  {id:9035,datePgto:'19/02/2026',pac:'Davi Miguel Moura Pereira',proc:'Consulta',val:250,pay:'PIX',type:'consulta',dateEvent:'19/02/2026',nfe:'emitida',nfeDate:'01/04/2026',adicionadoPor:''},
+  {id:9036,datePgto:'05/02/2026',pac:'Flávia Jordão de Oliveira',proc:'Consulta',val:250,pay:'PIX',type:'consulta',dateEvent:'05/02/2026',nfe:'emitida',nfeDate:'01/04/2026',adicionadoPor:''},
+  {id:9040,datePgto:'27/02/2026',pac:'Flavia Viviane de F. L. Silva',proc:'Cirurgia — Mamoplastia+LipoAbdo',val:15381,pay:'PIX',type:'cirurgia',dateEvent:'05/08/2026',nfe:'pendente',nfeDate:null,adicionadoPor:''},
+  {id:9041,datePgto:'25/02/2026',pac:'Janine R. da S. Camacho',proc:'Cirurgia — PIX restante',val:21700,pay:'PIX',type:'cirurgia',dateEvent:'04/03/2026',nfe:'emitida',nfeDate:'17/03/2026',adicionadoPor:''},
+  {id:9042,datePgto:'04/02/2026',pac:'Suellen de Brito Finizio',proc:'Cirurgia — PIX quitado',val:20000,pay:'PIX',type:'cirurgia',dateEvent:'12/03/2026',nfe:'emitida',nfeDate:'16/03/2026',adicionadoPor:''},
+  {id:9043,datePgto:'27/02/2026',pac:'Vanessa Aquino',proc:'Cirurgia — Mamoplastia Híbrida',val:13000,pay:'Cartão',type:'cirurgia',dateEvent:'27/02/2026',nfe:'a_emitir',nfeDate:null,adicionadoPor:''},
+];
+var SAL=[
+  {mes:'Janeiro 2026',pgto:'14/01/2026',base:5000,com:2206.70,ref:'Comissões dez/25',st:'sr'},
+  {mes:'Fevereiro 2026',pgto:'14/02/2026',base:5000,com:2650,ref:'Comissões jan/26 + consultas retroativas',st:'sr'},
+  {mes:'Março 2026',pgto:'14/03/2026',base:5000,com:0,ref:'Só base — comissões fev/26 não foram pagas',st:'sb3'},
+  {mes:'Abril 2026',pgto:'~14/04/2026',base:5000,com:6024.05,ref:'Fev R$3.564 + Mar R$1.460 + Amil ~R$1.000',st:'sp'},
+  {mes:'Maio 2026',pgto:'~14/05/2026',base:5000,com:0,ref:'Abr/26 — a calcular',st:'sf'},
+];
+
+function migrate(){
+  var eK=['ld_e5','ld_e4','ld_entries','ld-com-v4','ld-com-v3','ld-com-v2'];
+  var bK=['ld_b2','ld_b1','ld_boletos','ld-bol-v1','ld-bol-v2'];
+  var fK=['ld_f2','ld_f1','ld_financial','ld-fin-v1'];
+
+  function mergeAll(keys,fallback){
+    var seen={};var merged=[];
+    keys.forEach(function(k){
+      try{
+        var r=localStorage.getItem(k);
+        if(!r)return;
+        var d=JSON.parse(r);
+        if(!d||!d.length)return;
+        d.forEach(function(x){
+          var uid=String(x.id||'');
+          if(uid&&!seen[uid]){seen[uid]=1;merged.push(x);}
+        });
+      }catch(e){}
+    });
+    return merged.length>0?merged:fallback;
+  }
+
+  var eRaw=mergeAll(eK,INIT_E);
+  var eNorm=eRaw.map(function(x){
+    var d=x.date||x.datePgto||'';
+    return{id:x.id||(Date.now()+Math.random()),date:d,pac:x.pac||x.paciente||'',proc:x.proc||x.procedimento||'Consulta',val:Number(x.val)||0,pay:x.pay||x.forma||'—',com:Number(x.com)||0,paid:x.paid===true||x.paid==='true',adicionadoPor:x.adicionadoPor||''};
+  }).filter(function(x){return x.pac&&Number(x.com)>0;});
+  localStorage.setItem('ld_e5',JSON.stringify(eNorm));
+
+  var bRaw=mergeAll(bK,INIT_B);
+  localStorage.setItem('ld_b2',JSON.stringify(bRaw));
+
+  var fRaw=mergeAll(fK,INIT_F);
+  var fNorm=fRaw.map(function(x){
+    return{id:x.id||(Date.now()+Math.random()),datePgto:x.datePgto||x.date||'',pac:x.pac||'',proc:x.proc||'',val:Number(x.val)||0,pay:x.pay||'PIX',type:x.type||inferType(x.proc),dateEvent:x.dateEvent||null,nfe:x.nfe||'pendente',nfeDate:x.nfeDate||null,adicionadoPor:x.adicionadoPor||''};
+  });
+  localStorage.setItem('ld_f2',JSON.stringify(fNorm));
+}
+function lE(){try{var r=localStorage.getItem('ld_e5');return r?JSON.parse(r):INIT_E.slice();}catch(e){return INIT_E.slice();}}
+function sE(d){localStorage.setItem('ld_e5',JSON.stringify(d));}
+function lB(){try{var r=localStorage.getItem('ld_b2');return r?JSON.parse(r):INIT_B.slice();}catch(e){return INIT_B.slice();}}
+function sB(d){localStorage.setItem('ld_b2',JSON.stringify(d));}
+function lF(){try{var r=localStorage.getItem('ld_f2');return r?JSON.parse(r):INIT_F.slice();}catch(e){return INIT_F.slice();}}
+function sF(d){localStorage.setItem('ld_f2',JSON.stringify(d));}
+function lL(){try{var r=localStorage.getItem('ld_log');return r?JSON.parse(r):[];}catch(e){return[];}}
+function sL(d){localStorage.setItem('ld_log',JSON.stringify(d));}
+
+// ═══ SYNC ══════════════════════════════════════════
+function setSY(s){var d=el('sd');if(!d)return;d.className='syncDot '+(s==='ok'?'ok':s==='err'?'err':'syn');}
+function push(act,sheet,data){
+  try{fetch(SU,{method:'POST',body:JSON.stringify(Object.assign({action:act,sheet:sheet},data)),redirect:'follow',mode:'cors'}).then(function(){setSY('ok');}).catch(function(){setSY('err');});}catch(e){}
+}
+function logA(acao,detalhe){
+  var e={timestamp:nowBR(),usuario:CU?CU.nome:'',acao:acao,detalhe:detalhe,device:dev()};
+  var L=lL();L.unshift(e);if(L.length>200)L.splice(200);sL(L);
+  push('log','log',e);
+}
+
+// Merge: remote é autoritativo, mas preserva campos editados localmente
+// (dateEvent, nfe, nfeDate, paid) para não perder mudanças do usuário
+function mergeById(remote, local, keepLocalFields) {
+  var localMap={};
+  local.forEach(function(x){localMap[String(x.id)]=x;});
+  var remIds={};
+  remote.forEach(function(x){remIds[String(x.id)]=1;});
+  var result=remote.map(function(rx){
+    var lx=localMap[String(rx.id)];
+    if(lx&&keepLocalFields&&keepLocalFields.length){
+      var merged=Object.assign({},rx);
+      keepLocalFields.forEach(function(f){
+        // Prefere valor local se ele foi preenchido e difere do remote
+        var lv=lx[f];var rv=rx[f];
+        if(lv!==undefined&&lv!==null&&lv!==''&&lv!==rv)merged[f]=lv;
+      });
+      return merged;
+    }
+    return rx;
+  });
+  local.forEach(function(x){if(!remIds[String(x.id)])result.push(x);});
+  return result;
+}
+
+function syncFromSheets(fb){
+  setSY('syn');
+  Promise.all([
+    fetch(SU+'?sheet=comissoes',{redirect:'follow',mode:'cors'}).then(function(r){return r.text();}),
+    fetch(SU+'?sheet=financeiro',{redirect:'follow',mode:'cors'}).then(function(r){return r.text();}),
+    fetch(SU+'?sheet=boletos',{redirect:'follow',mode:'cors'}).then(function(r){return r.text();}),
+    fetch(SU+'?sheet=log',{redirect:'follow',mode:'cors'}).then(function(r){return r.text();})
+  ]).then(function(texts){
+    var results=texts.map(function(t){try{return JSON.parse(t);}catch(e){return{ok:false};}});
+    var dE=results[0],dF=results[1],dB=results[2],dL=results[3];
+    if(dE.ok&&dE.data&&dE.data.length>0){
+      var remoteE=dE.data.map(function(r){return{id:Number(r.id)||r.id,date:r.date||'',pac:r.pac||'',proc:r.proc||'',val:Number(r.val)||0,pay:r.pay||'',com:Number(r.com)||0,paid:r.paid==='true'||r.paid===true,adicionadoPor:r.adicionadoPor||''};});
+      sE(mergeById(remoteE, lE(), ['paid']));
+    }
+    if(dF.ok&&dF.data&&dF.data.length>0){
+      var remoteF=dF.data.map(function(r){return{id:Number(r.id)||r.id,datePgto:r.datePgto||'',pac:r.pac||'',proc:r.proc||'',val:Number(r.val)||0,pay:r.pay||'',type:r.type||inferType(r.proc),dateEvent:r.dateEvent||null,nfe:r.nfe||'pendente',nfeDate:r.nfeDate||null,adicionadoPor:r.adicionadoPor||''};});
+      sF(mergeById(remoteF, lF(), ['dateEvent','nfe','nfeDate']));
+    }
+    if(dB.ok&&dB.data&&dB.data.length>0){
+      var remoteB=dB.data.map(function(r){return{id:r.id,pac:r.pac||'',proc:r.proc||'',total:Number(r.total)||0,parcelas:Number(r.parcelas)||12,pagas:Number(r.pagas)||0,com:Number(r.com)||0,quitado:r.quitado==='true'||r.quitado===true,adicionadoPor:r.adicionadoPor||''};});
+      sB(mergeById(remoteB, lB(), ['pagas','quitado']));
+    }
+    if(dL.ok&&dL.data&&dL.data.length>0)sL(dL.data);
+    setSY('ok');
+    // FIX: renderDash estava faltando aqui — dashboard ficava em branco após sync
+    if(fb){
+      try{renderDash();}catch(e){}
+      try{renderRel();}catch(e){}
+      try{renderCom();}catch(e){}
+      try{renderLog();}catch(e){}
+    }
+  }).catch(function(){setSY('err');});
+}
+
+// ═══ AUTH ══════════════════════════════════════════
+var CU=null;
+function doLogin(){
+  var u=(el('liu').value||'').trim().toLowerCase();
+  var p=el('lip').value;
+  if(USERS[u]&&USERS[u].senha===p){
+    CU=Object.assign({},USERS[u],{key:u});
+    localStorage.setItem('ld_sess',JSON.stringify(CU));
+    startPortal();
+    logA('Login','Acesso ao portal');
+    // FIX: removido auto-sync no login para não sobrescrever mudanças locais.
+    // O sync acontece ao navegar para as abas de dados.
+  } else {
+    el('lerr').style.display='block';
+    setTimeout(function(){el('lerr').style.display='none';},3000);
+  }
+}
+function doLogout(){
+  logA('Logout','Saiu do portal');
+  localStorage.removeItem('ld_sess');
+  CU=null;
+  el('portal').style.display='none';
+  el('ls').style.display='flex';
+  el('lip').value='';
+}
+function startPortal(){
+  el('ls').style.display='none';
+  el('portal').style.display='flex';
+  if(el('hun'))el('hun').textContent=CU.nome;
+  buildNav();
+  showPage(CU.pages[0]);
+  setSY('ok');
+}
+
+// ═══ NAV ═══════════════════════════════════════════
+function buildNav(){
+  var n=el('nav');n.innerHTML='';
+  CU.pages.forEach(function(pg){
+    var btn=document.createElement('button');
+    btn.className='nb';btn.id='n-'+pg;
+    btn.textContent=PL[pg]||pg;
+    btn.onclick=function(){showPage(pg);};
+    n.appendChild(btn);
+  });
+}
+
+// FIX: showPage reescrito — render imediato do localStorage + sync em background
+// Antes: render estava no bloco else que NUNCA executava para dash/com/rel/log
+function showPage(pg){
+  ['dash','calc','chat','com','sal','rel','log'].forEach(function(p){
+    var e=el('pg-'+p);if(e)e.classList.remove('on');
+    var n=el('n-'+p);if(n)n.classList.remove('on');
+  });
+  var e=el('pg-'+pg);if(e)e.classList.add('on');
+  var n=el('n-'+pg);if(n)n.classList.add('on');
+
+  // Sempre renderiza imediatamente do localStorage (sem esperar rede)
+  if(pg==='dash')try{renderDash();}catch(e2){}
+  if(pg==='com')try{renderCom();}catch(e2){}
+  if(pg==='sal')try{renderSal();}catch(e2){}
+  if(pg==='rel')try{renderRel();}catch(e2){}
+  if(pg==='log')try{renderLog();}catch(e2){}
+  if(pg==='chat'&&!chatStarted)initChat();
+
+  // Sync em background para abas com dados (atualiza depois do render inicial)
+  if(pg==='com'||pg==='rel'||pg==='dash'||pg==='log'){
+    syncFromSheets(true);
+  }
+}
+
+// ═══ COMISSÕES ═════════════════════════════════════
+var _mes=null,_st='m';
+function setSt(s){
+  _st=s;
+  if(el('sm'))el('sm').classList.toggle('on',s==='m');
+  if(el('sb2'))el('sb2').classList.toggle('on',s==='b');
+  sh('secm',s==='m'?'block':'none');
+  sh('secb',s==='b'?'block':'none');
+}
+function renderCom(){
+  var E=lE(),B=lB();
+  var pend=0,rcv=0;
+  E.forEach(function(e){if(e.paid)rcv+=e.com;else pend+=e.com;});
+  if(el('cp'))el('cp').textContent=fd(pend);
+  if(el('cr'))el('cr').textContent=fd(rcv);
+  if(el('ca2'))el('ca2').textContent=fd(pend+rcv);
+  var bol=0;B.forEach(function(b){if(!b.quitado)bol+=b.com;});
+  if(el('cb'))el('cb').textContent=fd(bol);
+  var meses=[],seen={};
+  E.forEach(function(e){var k=mKey(e.date);if(k&&!seen[k]){seen[k]=1;meses.push(k);}});
+  // Fallback: se sem datas válidas, tenta normalizar
+  if(!meses.length&&E.length){
+    E=E.map(function(x){return Object.assign({},x,{date:x.date||x.datePgto||''});});
+    E.forEach(function(e){var k=mKey(e.date);if(k&&!seen[k]){seen[k]=1;meses.push(k);}});
+    if(meses.length)sE(E);
+  }
+  meses.sort(function(a,b){return b.localeCompare(a);});
+  if(!_mes||meses.indexOf(_mes)<0)_mes=meses[0]||null;
+  var mt=el('mt');if(mt){mt.innerHTML='';meses.forEach(function(m){var btn=document.createElement('button');btn.className='stab'+(_mes===m?' on':'');btn.textContent=mLab(m);btn.onclick=function(){_mes=m;try{renderCom();}catch(e){}};mt.appendChild(btn);});}
+  if(!_mes||!E.length){sh('ce','block');sh('ct','none');sh('ms','none');}
+  else{
+    var fil=E.filter(function(e){return mKey(e.date)===_mes;});
+    var mp=0,mr=0;fil.forEach(function(e){if(e.paid)mr+=e.com;else mp+=e.com;});
+    var ms=el('ms');if(ms){ms.innerHTML='<div class="si"><div class="sl">A Receber</div><div class="sv">'+fd(mp)+'</div></div><div class="si"><div class="sl">Recebido</div><div class="sv">'+fd(mr)+'</div></div><div class="si"><div class="sl">Total</div><div class="sv">'+fd(mp+mr)+'</div></div><div class="si"><div class="sl">Lançamentos</div><div class="sv">'+fil.length+'</div></div>';sh('ms','flex');}
+    sh('ce',fil.length?'none':'block');sh('ct',fil.length?'table':'none');
+    var tb=el('cb2');if(tb){tb.innerHTML='';fil.forEach(function(e){var tr=document.createElement('tr');tr.innerHTML='<td>'+e.date+'</td><td style="font-size:11px;max-width:80px;white-space:normal;word-break:break-word;font-weight:500">'+e.pac+'</td><td style="font-size:11px;max-width:100px;white-space:normal">'+e.proc+'</td><td style="white-space:nowrap">'+(e.val>0?fd(e.val):'—')+'</td><td style="font-size:10px">'+e.pay+'</td><td style="font-weight:700;color:var(--n);white-space:nowrap">'+fd(e.com)+'</td><td>'+who(e.adicionadoPor)+'</td><td><span class="bdg '+(e.paid?'p':'q')+'" onclick="tPaid('+e.id+')">'+(e.paid?'✅ Recebido':'⏳ Pendente')+'</span></td><td><button class="del" onclick="delE('+e.id+')">✕</button></td>';tb.appendChild(tr);});}
+  }
+  var blEl=el('bl');if(blEl){blEl.innerHTML='';B.forEach(function(b){var pct=Math.min(100,Math.round(b.pagas/b.parcelas*100));var div=document.createElement('div');if(b.quitado){div.innerHTML='<div style="background:#d4edda;color:#155724;border-radius:9px;padding:10px 14px;font-size:12px;font-weight:600;margin-bottom:10px">✅ '+b.pac+' quitado · '+fd(b.com)+' registrada '+who(b.adicionadoPor)+'</div>';}else{div.innerHTML='<div class="bc"><div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:7px"><div><div style="font-size:13px;font-weight:700;color:var(--n)">'+b.pac+' '+who(b.adicionadoPor)+'</div><div style="font-size:11px;color:var(--lt);margin-top:2px">'+b.proc+'</div></div><div style="text-align:right"><div style="font-size:9px;text-transform:uppercase;color:var(--lt)">Na quitação</div><div style="font-family:Cinzel,serif;font-size:16px;font-weight:600;color:var(--n)">'+fd(b.com)+'</div></div></div><div class="pw"><div class="pb" style="width:'+pct+'%"></div></div><div style="display:flex;justify-content:space-between;font-size:12px;color:var(--lt)"><span><strong>'+b.pagas+'</strong> de '+b.parcelas+' parcelas ('+pct+'%)</span><span>R$'+(b.total/1000).toFixed(0)+'k</span></div><div class="ba"><button class="bb bba" onclick="addParc(\''+b.id+'\')">+ Parcela</button>'+(b.pagas>0?'<button class="bb bba" onclick="subParc(\''+b.id+'\')">− Corrigir</button>':'')+'<button class="bb bbq" onclick="qBol(\''+b.id+'\')">✅ Quitar</button><button class="del" onclick="delBol(\''+b.id+'\')" style="margin-left:auto">✕</button></div></div>';}blEl.appendChild(div);});}
+}
+function tPaid(id){var E=lE();var i=E.find(function(x){return x.id===id;});if(i){i.paid=!i.paid;sE(E);renderCom();push('update','comissoes',{id:id,field:'paid',value:i.paid});logA(i.paid?'Marcou recebido':'Desmarcou',i.pac+' '+fd(i.com));}}
+function delE(id){if(!confirm('Remover?'))return;var E=lE();var i=E.find(function(x){return x.id===id;});sE(E.filter(function(x){return x.id!==id;}));renderCom();push('delete','comissoes',{id:id});logA('Removeu comissão',i?i.pac:id);}
+function addParc(id){var B=lB();var i=B.find(function(x){return x.id===id;});if(i&&i.pagas<i.parcelas){i.pagas++;sB(B);renderCom();push('update','boletos',{id:id,field:'pagas',value:i.pagas});logA('Parcela registrada',i.pagas+'/'+i.parcelas+' — '+i.pac);}}
+function subParc(id){var B=lB();var i=B.find(function(x){return x.id===id;});if(i&&i.pagas>0){i.pagas--;sB(B);renderCom();push('update','boletos',{id:id,field:'pagas',value:i.pagas});}}
+function qBol(id){var B=lB();var i=B.find(function(x){return x.id===id;});if(!i)return;i.quitado=true;var ne={id:Date.now(),date:todayBR(),pac:i.pac,proc:i.proc+' — Boleto quitado',val:i.total,pay:'Boleto quitado',com:i.com,paid:false,adicionadoPor:CU?CU.nome:''};var E=lE();E.unshift(ne);sB(B);sE(E);setSt('m');renderCom();push('update','boletos',{id:id,field:'quitado',value:true});push('append','comissoes',{row:ne});logA('Boleto quitado',i.pac+' '+fd(i.com));}
+function delBol(id){if(!confirm('Remover boleto?'))return;var B=lB();var i=B.find(function(x){return x.id===id;});sB(B.filter(function(x){return x.id!==id;}));renderCom();push('delete','boletos',{id:id});logA('Removeu boleto',i?i.pac:id);}
+
+// ═══ SALÁRIO ════════════════════════════════════════
+function renderSal(){
+  var rcv=0;SAL.forEach(function(s){if(s.st==='sr'||s.st==='sb3')rcv+=s.base+s.com;});
+  var prox=null;SAL.forEach(function(s){if(s.st==='sp'&&!prox)prox=s;});
+  var comP=0;SAL.forEach(function(s){if(s.st==='sp')comP+=s.com;});
+  var sc=el('sc2');if(sc)sc.innerHTML='<div class="si"><div class="sl">Recebido 2026</div><div class="sv">'+fd(rcv)+'</div></div><div class="si"><div class="sl">Previsto abril</div><div class="sv">'+(prox?fd(prox.base+prox.com):'—')+'</div></div><div class="si"><div class="sl">Comissões a receber</div><div class="sv">'+fd(comP)+'</div></div><div class="si"><div class="sl">Base mensal</div><div class="sv">R$ 5.000</div></div>';
+  var stL={sr:'<span class="bdg p" style="cursor:default">✅ Recebido</span>',sb3:'<span class="bdg p" style="cursor:default">✅ Base recebida</span>',sp:'<span class="bdg q">⏳ Previsto</span>',sf:'<span style="font-size:10px;color:var(--lt)">⏳ Futuro</span>'};
+  var rows='',tot=0;
+  SAL.forEach(function(s){var t=s.base+s.com;if(s.st==='sr'||s.st==='sb3')tot+=t;var cv=s.com>0?fd(s.com)+'<div style="font-size:10px;color:var(--lt);margin-top:2px;white-space:normal">'+s.ref+'</div>':'<span style="color:var(--lt)">—</span><div style="font-size:10px;color:var(--lt);margin-top:2px">'+s.ref+'</div>';rows+='<tr class="'+s.st+'"><td style="font-weight:600">'+s.mes+'</td><td>'+s.pgto+'</td><td>'+fd(s.base)+'</td><td style="max-width:150px">'+cv+'</td><td style="font-weight:700;white-space:nowrap">'+(s.st==='sf'?'a calcular':fd(t))+'</td><td>'+(stL[s.st]||'')+'</td></tr>';});
+  var st=el('st2');if(st)st.innerHTML='<table class="rt"><thead><tr><th>Mês</th><th>Pgto em</th><th>Base</th><th>Comissões</th><th>Total</th><th>Status</th></tr></thead><tbody>'+rows+'<tr style="background:var(--n)"><td colspan="4" style="text-align:right;font-size:11px;color:#fff;letter-spacing:1px">TOTAL RECEBIDO 2026</td><td style="font-weight:700;color:#fff">'+fd(tot)+'</td><td></td></tr></tbody></table>';
+}
+
+// ═══ RELATÓRIO ══════════════════════════════════════
+var _mid=null;
+function openMod(id){_mid=id;var F=lF();var e=F.find(function(x){return String(x.id)===String(id);});if(!e)return;el('mb').style.display='flex';if(e.dateEvent&&e.dateEvent.indexOf('Após')<0&&e.dateEvent.indexOf('/')>=0){var p=e.dateEvent.split('/');el('md').value=p[2]+'-'+p[1]+'-'+p[0];}else el('md').value='';}
+function closeMod(){el('mb').style.display='none';_mid=null;}
+function saveMod(){
+  if(!_mid)return;
+  var v=el('md').value;
+  if(!v)return;
+  var p=v.split('-');
+  if(p.length<3)return;
+  var dt=p[2]+'/'+p[1]+'/'+p[0];
+  var F=lF();
+  var e=F.find(function(x){return String(x.id)===String(_mid);});
+  if(e){
+    e.dateEvent=dt;
+    e.nfe=isPast(dt)?'a_emitir':'pendente';
+    sF(F);
+    renderRel();
+    push('update','financeiro',{id:_mid,field:'dateEvent',value:dt});
+    push('update','financeiro',{id:_mid,field:'nfe',value:e.nfe});
+    logA('Data atualizada',e.pac+' → '+dt);
+  }
+  closeMod();
+}
+function togNfe(id){var F=lF();var e=F.find(function(x){return x.id===id;});if(!e||e.nfe==='pendente')return;var old=e.nfe;if(e.nfe==='a_emitir'){e.nfe='emitida';e.nfeDate=todayBR();}else{e.nfe='a_emitir';e.nfeDate=null;}sF(F);renderRel();push('update','financeiro',{id:id,field:'nfe',value:e.nfe});push('update','financeiro',{id:id,field:'nfeDate',value:e.nfeDate||''});logA('NFe'+(old==='a_emitir'?' emitida':' desmarcada'),e.pac);}
+function delRel(id){if(!confirm('Remover?'))return;var F=lF();var i=F.find(function(x){return x.id===id;});sF(F.filter(function(x){return x.id!==id;}));renderRel();push('delete','financeiro',{id:id});logA('Removeu financeiro',i?i.pac:id);}
+function expRel(){var F=lF();var csv='Data Pgto,Paciente,Procedimento,Valor,Forma,Data Evento,NFe,Por\n';F.forEach(function(e){csv+=e.datePgto+',"'+e.pac+'","'+e.proc+'",'+e.val+','+e.pay+','+(e.dateEvent||'')+','+e.nfe+',"'+(e.adicionadoPor||'')+'"\n';});var a=document.createElement('a');a.href='data:text/csv;charset=utf-8,\uFEFF'+encodeURIComponent(csv);a.download='relatorio.csv';a.click();}
+
+function renderRel(){
+  var F=lF();
+  // Atualiza nfe de pendente para a_emitir quando data já passou
+  var ch=false;F.forEach(function(e){if(e.nfe==='pendente'&&isPast(e.dateEvent)){e.nfe='a_emitir';ch=true;}});if(ch)sF(F);
+
+  // FIX: usar mKey() — retorna YYYY-MM que ordena corretamente entre anos
+  var meses=[],seen={};
+  F.forEach(function(e){
+    if(!e.datePgto)return;
+    var k=mKey(e.datePgto); // YYYY-MM — ordena certo entre anos
+    if(k&&!seen[k]){seen[k]=1;meses.push(k);}
+  });
+  meses.sort(function(a,b){return b.localeCompare(a);}); // YYYY-MM ordena desc corretamente
+
+  var rm=el('rm');
+  if(rm){
+    var cur=rm.value;
+    rm.innerHTML='<option value="">Todos os meses</option>';
+    meses.forEach(function(m){
+      rm.innerHTML+='<option value="'+m+'"'+(cur===m?' selected':'')+'>'+mLab(m)+'</option>';
+    });
+    // Restaura seleção se ainda válida
+    if(cur&&meses.indexOf(cur)>=0)rm.value=cur;
+  }
+
+  var mf=el('rm')?el('rm').value:'';
+  var tf=el('rt2')?el('rt2').value:'';
+  var nf=el('rn')?el('rn').value:'';
+  var fil=F;
+  // FIX: filtro usa mKey() agora (YYYY-MM) em vez de substring(3)
+  if(mf)fil=fil.filter(function(e){return mKey(e.datePgto)===mf;});
+  if(tf)fil=fil.filter(function(e){return e.type===tf;});
+  if(nf)fil=fil.filter(function(e){return e.nfe===nf;});
+
+  var totAll=0,totPix=0,totCard=0;
+  fil.forEach(function(e){var v=Number(e.val)||0;totAll+=v;if(e.pay==='PIX')totPix+=v;if(e.pay==='Cartão'||e.pay==='Híbrido')totCard+=v;});
+  var nc=fil.filter(function(e){return e.nfe==='a_emitir';}).length;
+  var rc=el('rc');if(rc)rc.innerHTML='<div class="si"><div class="sl">Total entradas</div><div class="sv">'+fd(totAll)+'</div></div><div class="si"><div class="sl">PIX</div><div class="sv">'+fd(totPix)+'</div></div><div class="si"><div class="sl">Cartão/Híbrido</div><div class="sv">'+fd(totCard)+'</div></div><div class="si"><div class="sl">NFe a emitir</div><div class="sv" style="color:'+(nc>0?'#E6C3A8':'#7be07b')+'">'+nc+'</div></div>';
+  sh('re',fil.length?'none':'block');sh('rtb',fil.length?'table':'none');
+  var rb=el('rb');if(!rb)return;rb.innerHTML='';
+  fil.slice().sort(function(a,b){return (b.id||0)-(a.id||0);}).forEach(function(e){
+    var pc=e.pay==='PIX'?'#1a9e6f':e.pay==='Cartão'?'#2a334d':'#8e6a2a';
+    var nb=e.nfe==='emitida'?'<span class="nfed" onclick="togNfe('+e.id+')">✅ Emitida<br><span style="font-size:9px;opacity:.7">'+(e.nfeDate||'')+'</span></span>':e.nfe==='a_emitir'?'<span class="nfee" onclick="togNfe('+e.id+')">📄 A Emitir</span>':'<span class="nfep">⏳ Pendente</span>';
+    var tr=document.createElement('tr');
+    tr.innerHTML='<td style="white-space:nowrap">'+(e.datePgto||'')+'</td><td style="font-size:11px;max-width:80px;white-space:normal;word-break:break-word;font-weight:500">'+(e.pac||'')+'</td><td style="font-size:11px;max-width:90px;white-space:normal">'+(e.proc||'')+'</td><td style="font-weight:700;white-space:nowrap">'+fd(Number(e.val)||0)+'</td><td><span style="display:inline-block;padding:2px 7px;border-radius:20px;font-size:10px;font-weight:700;color:'+pc+';background:'+pc+'22">'+(e.pay||'')+'</span></td><td style="font-size:11px;white-space:nowrap"><span onclick="openMod('+e.id+')" style="cursor:pointer;text-decoration:underline;text-decoration-style:dotted">'+(e.dateEvent||'— definir')+'</span></td><td>'+who(e.adicionadoPor)+'</td><td>'+nb+'</td><td><button class="del" onclick="delRel('+e.id+')">✕</button></td>';
+    rb.appendChild(tr);
+  });
+}
+
+// ═══ LOG ════════════════════════════════════════════
+function renderLog(){
+  var L=lL();
+  var lc=el('lc');if(lc)lc.innerHTML='<div class="si"><div class="sl">Total</div><div class="sv">'+L.length+'</div></div><div class="si"><div class="sl">Usuários</div><div class="sv">'+([].concat.apply([],L.map(function(l){return[l.usuario];})).filter(function(v,i,a){return v&&a.indexOf(v)===i;}).length)+'</div></div>';
+  sh('le',L.length?'none':'block');sh('lt',L.length?'table':'none');
+  var lb=el('lb2');if(lb){lb.innerHTML='';L.slice(0,100).forEach(function(l){var tr=document.createElement('tr');tr.innerHTML='<td style="white-space:nowrap;font-size:11px">'+(l.timestamp||'')+'</td><td>'+who(l.usuario)+'</td><td style="font-size:12px;font-weight:600">'+(l.acao||'')+'</td><td style="font-size:11px;max-width:180px;white-space:normal">'+(l.detalhe||'')+'</td><td style="font-size:11px;color:var(--lt)">'+(l.device||'')+'</td>';lb.appendChild(tr);});}
+}
+
+// ═══ DASHBOARD ══════════════════════════════════════
+var dCharts={};
+var _dashF='m';
+
+function setDashF(f){
+  _dashF=f;
+  ['w','m','a'].forEach(function(x){var b=el('dft-'+x);if(b)b.classList.toggle('on',x===f);});
+  try{renderDash();}catch(e){}
+}
+
+function parseBR(s){
+  var p=(s||'').split('/');
+  if(p.length<3||!p[2]||!p[1]||!p[0])return null;
+  return new Date(Number(p[2]),Number(p[1])-1,Number(p[0]));
+}
+
+function dashFilterData(F){
+  var now=new Date(); now.setHours(23,59,59,999);
+  if(_dashF==='w'){
+    var cut=new Date(now.getTime()-6*24*3600*1000); cut.setHours(0,0,0,0);
+    return F.filter(function(e){var d=parseBR(e.datePgto);return d&&d>=cut&&d<=now;});
+  }
+  if(_dashF==='m'){
+    var curM=mKey(todayBR());
+    return F.filter(function(e){return mKey(e.datePgto)===curM;});
+  }
+  return F;
+}
+
+function renderDash(){
+  Object.keys(dCharts).forEach(function(k){try{dCharts[k].destroy();}catch(e){}});
+  dCharts={};
+  var F=lF(),E=lE();
+  F.forEach(function(e){if(!e.type)e.type=inferType(e.proc);});
+
+  var Ff=dashFilterData(F);
+  var totFat=0,totCons=0,totCir=0,totPix=0,totCard=0,totHib=0,cntProc=0;
+  Ff.forEach(function(e){
+    var v=Number(e.val)||0;
+    totFat+=v;cntProc++;
+    if(e.type==='consulta')totCons+=v;
+    else if(e.type==='cirurgia')totCir+=v;
+    if(e.pay==='PIX')totPix+=v;
+    else if(e.pay==='Cartão')totCard+=v;
+    else if(e.pay==='Híbrido')totHib+=v;
+  });
+  var nfePend=Ff.filter(function(e){return e.nfe==='a_emitir';}).length;
+  var comPend=0;E.forEach(function(e){if(!e.paid)comPend+=Number(e.com)||0;});
+  var ticketMed=cntProc>0?totFat/cntProc:0;
+  var pctCir=totFat>0?Math.round(totCir/totFat*100):0;
+
+  var lbl={'w':'Últimos 7 dias','m':'Mês atual','a':'Todo o período'};
+  var dlbl=el('dft-label');if(dlbl)dlbl.textContent='· '+lbl[_dashF];
+
+  var dc=el('dc');
+  if(dc)dc.innerHTML='<div class="si"><div class="sl">Faturamento</div><div class="sv">'+fd(totFat)+'</div></div>'
+    +'<div class="si"><div class="sl">Consultas</div><div class="sv">'+fd(totCons)+'</div></div>'
+    +'<div class="si"><div class="sl">Cirurgias</div><div class="sv">'+fd(totCir)+'</div></div>'
+    +'<div class="si"><div class="sl">NFe a Emitir</div><div class="sv" style="color:'+(nfePend>0?'#E6C3A8':'#7be07b')+'">'+nfePend+'</div></div>'
+    +'<div class="si"><div class="sl">Comissões Pend.</div><div class="sv">'+fd(comPend)+'</div></div>';
+
+  var dc2=el('dc2');
+  if(dc2)dc2.innerHTML='<div class="si"><div class="sl">Ticket Médio</div><div class="sv">'+fd(ticketMed)+'</div></div>'
+    +'<div class="si"><div class="sl">% Cirurgias/Fat.</div><div class="sv">'+pctCir+'%</div></div>'
+    +'<div class="si"><div class="sl">Procedimentos</div><div class="sv">'+cntProc+'</div></div>'
+    +'<div class="si"><div class="sl">PIX</div><div class="sv">'+fd(totPix)+'</div></div>'
+    +'<div class="si"><div class="sl">Cartão/Híbrido</div><div class="sv">'+fd(totCard+totHib)+'</div></div>';
+
+  // Chart 1: faturamento histórico mensal (always all data for trend context)
+  var allMeses=[],sm={};
+  F.forEach(function(e){if(!e.datePgto)return;var k=mKey(e.datePgto);if(k&&!sm[k]){sm[k]=1;allMeses.push(k);}});
+  allMeses.sort();
+  var mLabs=allMeses.map(function(m){var p=m.split('-');return(MF[p[1]]||p[1])+'/'+(p[0]||'').slice(2);});
+  var fat=allMeses.map(function(m){var s=0;F.forEach(function(e){if(mKey(e.datePgto)===m)s+=Number(e.val)||0;});return s;});
+  var cons=allMeses.map(function(m){var s=0;F.forEach(function(e){if(mKey(e.datePgto)===m&&e.type==='consulta')s+=Number(e.val)||0;});return s;});
+  var cir=allMeses.map(function(m){var s=0;F.forEach(function(e){if(mKey(e.datePgto)===m&&e.type==='cirurgia')s+=Number(e.val)||0;});return s;});
+  var curM=mKey(todayBR());
+  var barColors=allMeses.map(function(m){return m===curM?'#E6C3A8':'#2A334D';});
+
+  if(typeof Chart==='undefined')return;
+  var c1=el('c1');if(c1)dCharts.f=new Chart(c1,{type:'bar',data:{labels:mLabs,datasets:[{data:fat,backgroundColor:barColors,borderRadius:5}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:function(ctx){return 'R$'+(ctx.raw/1000).toFixed(1)+'k';}}}},scales:{y:{ticks:{callback:function(v){return 'R$'+(v/1000).toFixed(0)+'k';}},grid:{color:'#f0f0f0'}},x:{grid:{display:false}}}}});
+
+  // Chart 2: forma de pagamento (filtered)
+  var pix2=0,card2=0,hib2=0;Ff.forEach(function(e){var v=Number(e.val)||0;if(e.pay==='PIX')pix2+=v;else if(e.pay==='Cartão')card2+=v;else if(e.pay==='Híbrido')hib2+=v;});
+  var c2=el('c2');if(c2)dCharts.p=new Chart(c2,{type:'doughnut',data:{labels:['PIX','Cartão','Híbrido'],datasets:[{data:[pix2,card2,hib2],backgroundColor:['#1a9e6f','#2A334D','#E6C3A8'],borderWidth:2,borderColor:'#fff'}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{font:{size:11},boxWidth:12}},tooltip:{callbacks:{label:function(ctx){return ctx.label+': R$'+(ctx.raw/1000).toFixed(1)+'k';}}}}}});
+
+  // Chart 3: consultas vs cirurgias (filtered period, by month if 'a')
+  var c3=el('c3');if(c3){
+    if(_dashF==='a'){
+      dCharts.t=new Chart(c3,{type:'bar',data:{labels:mLabs,datasets:[{label:'Consultas',data:cons,backgroundColor:'#E6C3A8',borderRadius:4},{label:'Cirurgias',data:cir,backgroundColor:'#2A334D',borderRadius:4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{font:{size:11},boxWidth:12}}},scales:{x:{grid:{display:false}},y:{ticks:{callback:function(v){return 'R$'+(v/1000).toFixed(0)+'k';}},grid:{color:'#f0f0f0'}}}}});
+    } else {
+      dCharts.t=new Chart(c3,{type:'doughnut',data:{labels:['Consultas','Cirurgias'],datasets:[{data:[totCons,totCir],backgroundColor:['#E6C3A8','#2A334D'],borderWidth:2,borderColor:'#fff'}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{font:{size:11},boxWidth:12}},tooltip:{callbacks:{label:function(ctx){return ctx.label+': R$'+(ctx.raw/1000).toFixed(1)+'k ('+Math.round(ctx.raw/(totCons+totCir||1)*100)+'%)';}}}}}});
+    }
+  }
+
+  // Chart 4: NFe status (filtered)
+  var np=Ff.filter(function(e){return e.nfe==='pendente';}).length;
+  var na=Ff.filter(function(e){return e.nfe==='a_emitir';}).length;
+  var ne=Ff.filter(function(e){return e.nfe==='emitida';}).length;
+  var c4=el('c4');if(c4)dCharts.n=new Chart(c4,{type:'doughnut',data:{labels:['Pendente ('+np+')','A Emitir ('+na+')','Emitida ('+ne+')'],datasets:[{data:[np,na,ne],backgroundColor:['#f0f0f0','#fff3cd','#d4edda'],borderColor:['#ccc','#ffc107','#28a745'],borderWidth:2}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{font:{size:11},boxWidth:12}}}}});
+
+  // Pendências críticas
+  var dpend=el('dpend');
+  if(dpend){
+    var pends=F.filter(function(e){return e.nfe==='a_emitir';}).slice(0,6);
+    if(!pends.length){dpend.innerHTML='<div style="color:var(--lt);font-size:12px;padding:10px 0">✅ Nenhuma pendência crítica</div>';}
+    else{dpend.innerHTML=pends.map(function(e){return '<div class="pend-row"><span style="font-weight:500;max-width:140px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+e.pac+'</span><div style="display:flex;align-items:center;gap:6px"><span style="font-size:11px;color:var(--lt)">'+fd(Number(e.val)||0)+'</span><span class="pend-tag" style="background:#fff3cd;color:#856404">📄 NFe</span></div></div>'}).join('');}
+  }
+
+  // Top cirurgias (always all data)
+  var top=F.filter(function(e){return e.type==='cirurgia';}).slice().sort(function(a,b){return (Number(b.val)||0)-(Number(a.val)||0);}).slice(0,6);
+  var maxV=top.length>0?(Number(top[0].val)||1):1;
+  var dt=el('dtop');
+  if(dt)dt.innerHTML=top.length?top.map(function(e){
+    var pc=e.pay==='PIX'?'#1a9e6f':e.pay==='Cartão'?'#2a334d':'#8e6a2a';
+    return '<div style="display:flex;align-items:center;gap:9px;margin-bottom:9px">'
+      +'<div style="font-size:12px;min-width:110px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:500">'+e.pac+'</div>'
+      +'<div style="flex:1;background:#f0f0f0;border-radius:20px;height:7px"><div style="background:var(--n);border-radius:20px;height:7px;width:'+((Number(e.val)||0)/maxV*100).toFixed(0)+'%"></div></div>'
+      +'<div style="font-size:11px;font-weight:700;min-width:65px;text-align:right;color:var(--n)">'+fd(Number(e.val)||0)+'</div>'
+      +'<span style="font-size:10px;padding:2px 6px;border-radius:18px;background:'+pc+'22;color:'+pc+';font-weight:700">'+e.pay+'</span>'
+      +'</div>';
+  }).join(''):'<div style="color:var(--lt);font-size:12px;padding:10px 0">Nenhuma cirurgia registrada</div>';
+}
+
+// ═══ IA CHAT ════════════════════════════════════════
+var chatHistory=[],chatStarted=false,pendingFile=null;
+var SYS='Você é a assistente de comissões da Duda, coordenadora da Clínica Dr. Lucas Dantas.\n\nREGRAS: Consulta R$400→R$50 | R$250-300→R$30 | R$200=sinal(não registrar) | Cirurgia PIX/à vista→5% | Cartão→3% | Boleto→5% na quitação | Híbrido→proporcional | Desconto≥10%→3%\n\nHONORÁRIOS: Mastopexia R$20k | Abdo R$20k | Masto+Abdo R$26k | Lipo360 R$20k | LipoAbdo R$24k | Masto+LipoAbdo R$32k | MamaRedutora R$20k | Silicone R$12k | Gineco R$12-18k | Bleparo R$10k | Lifting R$24k | Laser+R$5k\n\nRESPONDA SEMPRE EM JSON PURO:\n{"message":"texto","action":"register|question|info|warning","entries":[{"date":"DD/MM/YYYY","pac":"Nome","proc":"Tipo","val":0,"pay":"Forma","com":0,"paid":false,"dateEvent":"DD/MM/YYYY ou null"}],"boletos":[{"pac":"Nome","proc":"Desc","total":0,"parcelas":12,"pagas":0,"com":0}]}';
+function initChat(){chatStarted=true;addMsg('ai','Olá! 👋 Assistente de comissões.<br><br>• <em>"Consulta da Maria, R$400, hoje"</em><br>• <em>"Cirurgia da Joana, R$20k, PIX"</em><br>• Enviar comprovante 📎');}
+function addMsg(role,html,extra){var ca=el('ca');if(!ca)return;var d=document.createElement('div');d.className='msg '+role;var av=document.createElement('div');av.className='av '+role;av.textContent=role==='ai'?'LD':(CU?CU.nome.charAt(0):'?');var bub=document.createElement('div');bub.className='bub';bub.innerHTML=html;if(extra)bub.appendChild(extra);d.appendChild(av);d.appendChild(bub);ca.appendChild(d);ca.scrollTop=ca.scrollHeight;}
+function addTyp(){var ca=el('ca');if(!ca)return;var d=document.createElement('div');d.className='msg ai';d.id='typ';d.innerHTML='<div class="av ai">LD</div><div class="typing"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>';ca.appendChild(d);ca.scrollTop=ca.scrollHeight;}
+function remTyp(){var t=el('typ');if(t)t.remove();}
+function sc(txt){if(el('ci'))el('ci').value=txt;sendMsg();}
+function onCK(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendMsg();}}
+function autoH(e){e.style.height='auto';e.style.height=Math.min(e.scrollHeight,90)+'px';}
+function onFile(e){var file=e.target.files[0];if(!file)return;var r=new FileReader();r.onload=function(ev){pendingFile={name:file.name,type:file.type,data:ev.target.result.split(',')[1],prev:ev.target.result};var ap=el('ap');ap.style.display='flex';var isImg=file.type.indexOf('image/')>=0;ap.innerHTML=(isImg?'<img src="'+ev.target.result+'" style="width:36px;height:36px;object-fit:cover;border-radius:4px">':'📄')+' <span style="flex:1;font-size:11px">'+file.name+'</span><button onclick="clrF()" style="background:none;border:none;cursor:pointer;font-size:13px;color:var(--lt)">✕</button>';};r.readAsDataURL(file);e.target.value='';}
+function clrF(){pendingFile=null;sh('ap','none');}
+async function sendMsg(){
+  var ci=el('ci'),sb=el('sb');
+  var txt=(ci?ci.value:'').trim();
+  if(!txt&&!pendingFile)return;
+  if(sb)sb.disabled=true;
+  var uc=[],uh='';
+  if(pendingFile){var isImg=pendingFile.type.indexOf('image/')>=0;if(isImg){uc.push({type:'image',source:{type:'base64',media_type:pendingFile.type,data:pendingFile.data}});uh+='<img src="'+pendingFile.prev+'" style="max-width:160px;max-height:120px;border-radius:7px;display:block;margin-top:3px"><br>';}else{uc.push({type:'document',source:{type:'base64',media_type:'application/pdf',data:pendingFile.data}});uh+='📄 '+pendingFile.name+'<br>';}}
+  if(txt){uc.push({type:'text',text:txt});uh+=txt;}
+  if(!txt&&pendingFile)uc.push({type:'text',text:'Registre este comprovante.'});
+  addMsg('user',uh);clrF();if(ci){ci.value='';autoH(ci);}addTyp();
+  chatHistory.push({role:'user',content:uc.length===1&&uc[0].type==='text'?uc[0].text:uc});
+  var recent=lE().slice(0,5).map(function(e){return e.date+' '+e.pac;}).join(' | ');
+  try{
+    var res=await fetch(SU,{method:'POST',body:JSON.stringify({action:'claude',payload:{model:'claude-sonnet-4-20250514',max_tokens:1000,system:SYS+'\nRecentes: '+recent+'\nUsuário: '+(CU?CU.nome:''),messages:chatHistory.slice(-8)}}),redirect:'follow',mode:'cors'});
+    var _rd=await res.json();var data=_rd.result||_rd;remTyp();
+    var raw=(data.content&&data.content.find(function(b){return b.type==='text';}))||{text:'{}'};raw=raw.text;
+    chatHistory.push({role:'assistant',content:raw});
+    var parsed;try{parsed=JSON.parse(raw.replace(/```json|```/g,'').trim());}catch(e){parsed={message:raw,action:'info',entries:[],boletos:[]};}
+    var extra=null;
+    if(parsed.entries&&parsed.entries.length){
+      var E=lE(),F=lF();
+      var card=document.createElement('div');card.className='rcard';
+      card.innerHTML='<div class="rtit">✅ '+parsed.entries.length+' registro'+(parsed.entries.length>1?'s':'')+' por '+(CU?CU.nome:'')+' adicionado'+(parsed.entries.length>1?'s':'')+'</div>';
+      parsed.entries.forEach(function(e){
+        var eid=Date.now()+Math.random();
+        var ne={id:eid,date:e.date||todayBR(),pac:e.pac,proc:e.proc,val:e.val||0,pay:e.pay||'—',com:e.com,paid:false,adicionadoPor:CU?CU.nome:''};
+        E.unshift(ne);
+        var tipo=inferType(e.proc);
+        var payF=e.pay&&e.pay.indexOf('Cartão')>=0?'Cartão':e.pay&&e.pay.indexOf('Boleto')>=0?'Boleto':'PIX';
+        var nfe=isPast(e.dateEvent)?'a_emitir':'pendente';
+        var nf={id:eid+0.1,datePgto:e.date||todayBR(),pac:e.pac,proc:e.proc,val:e.val||0,pay:payF,type:tipo,dateEvent:e.dateEvent||null,nfe:nfe,nfeDate:null,adicionadoPor:CU?CU.nome:''};
+        F.unshift(nf);
+        var row=document.createElement('div');row.className='ri';row.innerHTML='<span>'+e.pac+' — '+(e.proc||'').substring(0,25)+'</span><span class="rv">'+fd(e.com)+'</span>';card.appendChild(row);
+        push('append','comissoes',{row:ne});push('append','financeiro',{row:nf});
+      });
+      sE(E);sF(F);extra=card;
+      logA('Chat registro',parsed.entries.map(function(e){return e.pac;}).join(', '));
+    }
+    if(parsed.boletos&&parsed.boletos.length){
+      var B=lB();
+      parsed.boletos.forEach(function(b){var nb={id:'b'+Date.now()+Math.random(),pac:b.pac,proc:b.proc,total:b.total,parcelas:b.parcelas||12,pagas:0,com:b.com,quitado:false,adicionadoPor:CU?CU.nome:''};B.push(nb);push('append','boletos',{row:nb});});
+      sB(B);
+    }
+    addMsg('ai',parsed.message||'OK!',extra);
+  }catch(err){remTyp();addMsg('ai','Erro de conexão. Tente novamente.');}
+  if(sb)sb.disabled=false;
+}
+
+// ═══ INIT ═══════════════════════════════════════════
+migrate();
+(function(){
+  var sess=localStorage.getItem('ld_sess');
+  if(sess){
+    try{
+      var saved=JSON.parse(sess);
+      if(saved.key&&USERS[saved.key]){
+        CU=Object.assign({},USERS[saved.key],{key:saved.key});
+        localStorage.setItem('ld_sess',JSON.stringify(CU));
+        startPortal();
+        // FIX: removido auto-sync aqui — evita sobrescrever mudanças locais no login.
+        // O showPage() já dispara sync em background ao carregar a primeira aba.
+      }
+    }catch(e){}
+  }
+})();
+</script>
+</body>
+</html>
